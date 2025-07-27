@@ -1,0 +1,565 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Authentic 90s Web Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Arial&family=Courier+New&display=swap');
+
+:root {
+  /* Authentic 90s Web Colors - Not neon! */
+  --web-blue: #0000ff;
+  --web-red: #ff0000;
+  --web-green: #008000;
+  --web-purple: #800080;
+  --web-yellow: #ffff00;
+  --web-cyan: #00ffff;
+  --web-magenta: #ff00ff;
+  --web-gray: #808080;
+  --web-silver: #c0c0c0;
+  --web-navy: #000080;
+  --web-maroon: #800000;
+  --web-lime: #00ff00;
+  
+  /* Windows 95 System Colors */
+  --win95-gray: #cdc7bb;
+  --win95-light: #ecece0;
+  --win95-dark: #a0947e;
+  --win95-darker: #896b4f;
+  --win95-blue: #0000ff;
+  --win95-white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+  background: var(--win95-white);
+  color: #000000;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+/* Solid background instead of checkered pattern */
+body {
+  background: var(--win95-light);
+  background-attachment: fixed;
+}
+
+/* Remove scanlines - too modern */
+.scanlines::after {
+  display: none;
+}
+
+/* Subtle Rainbow Text Effect */
+.rainbow-text {
+  background: linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, #00ffff, #0080ff, #0000ff, #8000ff, #ff00ff, #ff0080);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 4s linear infinite;
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Classic 90s Blink Effect - More Subtle */
+.blink {
+  animation: blink 2s linear infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Authentic 90s Text Styling */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+/* Classic Web Colors */
+.text-web-blue { color: var(--web-blue); }
+.text-web-red { color: var(--web-red); }
+.text-web-green { color: var(--web-green); }
+.text-web-purple { color: var(--web-purple); }
+.text-web-yellow { color: var(--web-yellow); }
+.text-web-cyan { color: var(--web-cyan); }
+.text-web-magenta { color: var(--web-magenta); }
+
+/* Classic 90s Link Styling */
+a {
+  color: var(--web-blue);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--web-purple);
+}
+
+a:hover {
+  color: var(--web-red);
+  background: var(--web-yellow);
+}
+
+/* Classic 90s Borders */
+.retro-border {
+  border: 2px outset var(--win95-gray);
+  background: var(--win95-gray);
+  padding: 8px;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.retro-border-inset {
+  border: 2px inset var(--win95-gray);
+  background: var(--win95-white);
+  padding: 4px;
+}
+
+/* Classic 90s Buttons */
+.win95-button {
+  background: var(--win95-gray);
+  border: 2px outset var(--win95-gray);
+  padding: 4px 12px;
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+  font-size: 11px;
+  color: #000000;
+  cursor: pointer;
+  margin: 2px;
+}
+
+.win95-button:active {
+  border: 2px inset var(--win95-gray);
+}
+
+.win95-button:hover {
+  background: var(--win95-light);
+}
+
+/* Classic Under Construction */
+.under-construction {
+  background: var(--web-yellow);
+  color: #000000;
+  padding: 4px 8px;
+  border: 2px solid #000000;
+  font-weight: bold;
+  display: inline-block;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+/* Classic Marquee */
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 15s linear infinite;
+  background: var(--web-yellow);
+  color: #000000;
+  padding: 2px 8px;
+  border: 1px solid #000000;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* System Crash Screen - Keep original colors */
+.crash-screen {
+  position: fixed;
+  inset: 0;
+  background: #000080;
+  color: #ffffff;
+  font-family: 'Courier New', 'MS Sans Serif', monospace;
+  z-index: 9999;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.crash-text {
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: pre-wrap;
+}
+
+.crash-cursor {
+  animation: crashCursor 1s linear infinite;
+}
+
+@keyframes crashCursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Classic Form Elements */
+.retro-input {
+  background: var(--win95-white);
+  border: 2px inset var(--win95-gray);
+  color: #000000;
+  padding: 2px 4px;
+  font-family: 'Courier New', 'MS Sans Serif', monospace;
+  font-size: 11px;
+}
+
+.retro-input:focus {
+  outline: none;
+  background: #ffffcc;
+}
+
+/* Visitor Counter */
+.counter-display {
+  background: #000000;
+  color: var(--web-lime);
+  border: 2px outset var(--win95-gray);
+  padding: 4px 8px;
+  font-family: 'Courier New', 'MS Sans Serif', monospace;
+  text-align: center;
+  font-size: 12px;
+  display: inline-block;
+}
+
+/* Classic Table Styling */
+.data-table {
+  border-collapse: collapse;
+  border: 2px outset var(--win95-gray);
+  background: var(--win95-white);
+}
+
+.data-table th,
+.data-table td {
+  border: 1px inset var(--win95-gray);
+  padding: 4px 8px;
+  text-align: left;
+}
+
+.data-table th {
+  background: var(--win95-gray);
+  font-weight: bold;
+}
+
+/* Guestbook Styling */
+.guestbook-entry {
+  background: var(--win95-white);
+  border: 2px inset var(--win95-gray);
+  margin: 4px 0;
+  padding: 6px;
+}
+
+/* ASCII Art Styling */
+.ascii-art {
+  font-family: 'Courier New', 'MS Sans Serif', monospace;
+  font-size: 8px;
+  line-height: 1;
+  color: #000000;
+  white-space: pre;
+  text-align: center;
+}
+
+/* Classic HR */
+hr {
+  border: none;
+  border-top: 2px inset var(--win95-gray);
+  margin: 10px 0;
+}
+
+/* 90s List Styling */
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin: 2px 0;
+}
+
+/* Dancing Baby Container */
+.dancing-baby {
+  cursor: pointer;
+  text-align: center;
+  padding: 10px;
+  background: var(--win95-white);
+  border: 2px inset var(--win95-gray);
+  margin: 10px auto;
+  display: inline-block;
+}
+
+/* Classic Popup */
+.popup-container {
+  position: fixed;
+  z-index: 100;
+  pointer-events: auto;
+  animation: popupBounce 0.5s ease-out;
+}
+
+@keyframes popupBounce {
+  0% { transform: scale(0.5) translateY(-50px); opacity: 0; }
+  50% { transform: scale(1.1) translateY(10px); opacity: 0.8; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Navigation Links */
+.nav-links {
+  background: var(--win95-gray);
+  border: 2px outset var(--win95-gray);
+  padding: 4px;
+}
+
+.nav-links a {
+  display: block;
+  color: var(--web-blue);
+  text-decoration: underline;
+  padding: 2px 4px;
+  font-size: 11px;
+}
+
+.nav-links a:hover {
+  background: var(--web-blue);
+  color: #ffffff;
+}
+
+/* Center Tags (Classic 90s) */
+.center {
+  text-align: center;
+}
+
+/* Classic Font Sizes - Fixed */
+.font-small { 
+  font-size: 12px ; 
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+}
+.font-normal { 
+  font-size: 14px ; 
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+}
+.font-large { 
+  font-size: 16px ; 
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+}
+.font-huge { 
+  font-size: 20px; 
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+}
+
+/* Remove modern animations */
+.animate-bounce,
+.animate-pulse,
+.animate-spin {
+  animation: none;
+}
+
+/* Classic Web Ring */
+.webring {
+  background: var(--win95-gray);
+  border: 2px outset var(--win95-gray);
+  padding: 8px;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.webring a {
+  margin: 0 5px;
+  font-size: 11px;
+}
+
+/* Remove shadows and modern effects */
+.drop-shadow,
+.shadow-sm,
+.shadow-lg {
+  box-shadow: none;
+}
+
+/* Classic Spacing */
+.spacing-classic {
+  margin: 8px 0;
+  padding: 4px;
+}
+
+/* 90s Background Patterns */
+.bg-pattern-dots {
+  background-image: radial-gradient(circle, var(--win95-dark) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.bg-pattern-grid {
+  background-image: 
+    linear-gradient(var(--win95-gray) 1px, transparent 1px),
+    linear-gradient(90deg, var(--win95-gray) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Windows 95 Window Styling */
+.win95-window {
+  background: var(--win95-gray);
+  border: 2px outset var(--win95-gray);
+  color: #000000;
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+  font-size: 11px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.win95-titlebar {
+  background: linear-gradient(90deg, var(--web-blue), var(--web-navy));
+  color: white;
+  padding: 2px 4px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+/* 90s Title Section */
+.title-section {
+  background: #ecece0;
+  border: 4px outset var(--win95-gray);
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.title-section h1 {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  margin-bottom: 8px;
+}
+
+/* 90s Image Styling */
+.vintage-image {
+  border: 3px outset var(--win95-gray);
+  background: var(--win95-white);
+  padding: 4px;
+  margin: 8px;
+  display: inline-block;
+  filter: contrast(1.2) brightness(0.9) saturate(0.8);
+}
+
+.vintage-image img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* ===== PIXELATED GLOBAL STYLES ===== */
+* {
+  image-rendering: pixelated !important;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+}
+
+body {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+
+/* Pixelated Text Classes */
+.pixelated-text {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.pixelated-title {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.pixelated-small {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.2px;
+  font-size: 12px;
+}
+
+/* Pixelated Borders */
+.pixelated-border {
+  border: 2px outset #cdc7bb;
+  image-rendering: pixelated;
+}
+
+.pixelated-border-inset {
+  border: 2px inset #cdc7bb;
+  image-rendering: pixelated;
+}
+
+/* Pixelated Buttons */
+.pixelated-button {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 2px outset #cdc7bb;
+  background: #ecece0;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+
+.pixelated-button:hover {
+  border: 2px inset #cdc7bb;
+}
+
+/* Pixelated Windows */
+.pixelated-window {
+  border: 3px outset #cdc7bb;
+  background: #ecece0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  image-rendering: pixelated;
+}
+
+.pixelated-titlebar {
+  background: #000080;
+  color: #ffffff;
+  padding: 4px 8px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+  font-size: 12px;
+  image-rendering: pixelated;
+}
+
+/* Override all existing font classes */
+.font-small, .font-normal, .font-large, .font-huge {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+}
+
+/* Pixelated Links */
+a {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+}
+
+/* Pixelated Headers */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+}
+
+/* Pixelated Tables */
+table, th, td {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+}
+
+/* Pixelated Forms */
+input, textarea, select, button {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+  image-rendering: pixelated;
+}
+
+/* Pixelated Lists */
+ul, ol, li {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  letter-spacing: 0.3px;
+} 
