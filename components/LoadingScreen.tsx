@@ -327,7 +327,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       </div>
 
       {/* Audio Element */}
-      <audio ref={audioRef} loop preload="auto" muted={false}>
+      <audio ref={audioRef} loop preload="auto" autoPlay muted={false}>
         <source src="/assets/dialup.mp3" type="audio/mpeg" />
         <source src="/assets/dialup.wav" type="audio/wav" />
         Your browser does not support the audio element.

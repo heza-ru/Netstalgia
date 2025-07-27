@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LoadingScreen from '../components/LoadingScreen'
 import DancingBaby from '../components/DancingBaby'
 import Guestbook from '../components/Guestbook'
@@ -13,12 +13,14 @@ import WebRing from '../components/WebRing'
 import EasterEggManager from '../components/EasterEggManager'
 import WinampPlayer from '../components/BackgroundMusic'
 import EasterEggModal from '../components/EasterEggModal'
+import VideoPopup from '../components/VideoPopup'
 import SystemCrash from '../components/SystemCrash'
 import UnderConstruction from '../components/UnderConstruction'
 import MarqueeText from '../components/MarqueeText'
 import SecretEasterEgg from '../components/SecretEasterEgg'
 import Starfield from '../components/Starfield'
 import Navbar from './Navbar'
+import BBSFeatures from '../components/BBSFeatures'
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
@@ -29,6 +31,16 @@ export default function Home() {
   const [easterEggCount, setEasterEggCount] = useState(0)
   const [showStarfield, setShowStarfield] = useState(false)
   const [currentPage, setCurrentPage] = useState('home')
+  const [videoPopup, setVideoPopup] = useState<{
+    isOpen: boolean
+    videoSrc: string
+    title: string
+  }>({
+    isOpen: false,
+    videoSrc: '',
+    title: ''
+  })
+  const [typedText, setTypedText] = useState('')
 
   const handleLoadingComplete = () => {
       setIsLoading(false)
@@ -53,6 +65,85 @@ export default function Home() {
     setShowStarfield(true)
     setTimeout(() => setShowStarfield(false), 5000)
   }
+
+  // Keyboard event listener for easter eggs
+  useEffect(() => {
+    let konamiSequence: string[] = []
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA']
+    
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Starfield toggle
+      if (event.key === 's' || event.key === 'S') {
+        setShowStarfield(prev => !prev)
+      }
+      
+      // Text input for secret codes
+      if (event.key.length === 1) {
+        setTypedText(prev => {
+          const newText = prev + event.key.toUpperCase()
+          const last10 = newText.slice(-10)
+          
+          // Check for CONTRA
+          if (last10.includes('CONTRA')) {
+            setVideoPopup({
+              isOpen: true,
+              videoSrc: '/assets/konami.mp4',
+              title: 'CONTRA - UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A'
+            })
+            return ''
+          }
+          
+          // Check for NINTENDO
+          if (last10.includes('NINTENDO')) {
+            setVideoPopup({
+              isOpen: true,
+              videoSrc: '/assets/nintendo.mp4',
+              title: 'NINTENDO - IT\'S ON LIKE DONKEY KONG!'
+            })
+            return ''
+          }
+          
+          return newText
+        })
+      }
+      
+      // Clear text on backspace
+      if (event.key === 'Backspace') {
+        setTypedText(prev => prev.slice(0, -1))
+      }
+      
+      // Konami Code detection
+      konamiSequence.push(event.code)
+      if (konamiSequence.length > konamiCode.length) {
+        konamiSequence.shift()
+      }
+      
+      if (konamiSequence.join(',') === konamiCode.join(',')) {
+        setVideoPopup({
+          isOpen: true,
+          videoSrc: '/assets/konami.mp4',
+          title: 'KONAMI CODE ACTIVATED!'
+        })
+        konamiSequence = []
+      }
+      
+      // Other secret codes
+      if (event.key === 'h' && event.ctrlKey) {
+        alert('🎯 SECRET HELP MENU! 🎯\n\nKeyboard Shortcuts:\n• S - Toggle Starfield\n• Ctrl+H - This help menu\n• Konami Code - ↑↑↓↓←→←→BA\n• Type "CONTRA" for Contra video\n• Type "NINTENDO" for Nintendo video\n\nEaster Eggs:\n• Click the dancing baby\n• Click banner ads\n• Use web ring navigation\n• Wait for mail notification\n\nHave fun exploring! 🌟')
+      }
+      
+      // Matrix effect trigger
+      if (event.key === 'm' && event.ctrlKey) {
+        const customEvent = new CustomEvent('triggerEasterEgg', {
+          detail: { type: 'matrix-effect', source: 'keyboard-shortcut' }
+        })
+        window.dispatchEvent(customEvent)
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [])
 
   const famousSites = [
     'YAHOO! - THE BEST SEARCH ENGINE!',
@@ -95,6 +186,12 @@ export default function Home() {
       {showStarfield && <Starfield />}
       <MailNotification />
       <EasterEggManager />
+      <VideoPopup 
+        isOpen={videoPopup.isOpen}
+        videoSrc={videoPopup.videoSrc}
+        title={videoPopup.title}
+        onClose={() => setVideoPopup(prev => ({ ...prev, isOpen: false }))}
+      />
       
       {/* Title Section - Always Visible */}
       <div className="title-section pixelated-window" style={{
@@ -614,14 +711,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Hidden Konami Code Easter Egg */}
-                  <div className="mt-4" style={{border: '2px solid #896b4f', padding: '4px', background: '#ecece0', cursor: 'pointer'}} onClick={() => {
-                    alert('🎮 KONAMI CODE ACTIVATED! 🎮\n\n↑↑↓↓←→←→BA\n\n+30 LIVES!\n+1000 POINTS!\n+UNLIMITED POWERS!\n\nYou found the secret Konami Code!\nThis website is now 100% more awesome!\n\nTry typing other secret codes too!')
-                  }}>
-                                      <div className="center font-small text-web-green" style={{fontSize: '11px'}}>
-                    * CLICK FOR KONAMI CODE! *
-                  </div>
-                  </div>
+
 
                   {/* New 90s Content Section */}
                   <div className="mt-4" style={{border: '3px outset #cdc7bb', padding: '12px', background: '#ecece0'}}>
@@ -663,63 +753,71 @@ export default function Home() {
                   </h2>
                   
                   <div style={{border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0'}}>
-                    <h3 style={{fontSize: '16px', color: '#000080', marginBottom: '12px'}}>FREE SOFTWARE DOWNLOADS!</h3>
+                    <h3 style={{fontSize: '16px', color: '#000080', marginBottom: '12px'}}>BBS FILE AREA - FREE SOFTWARE!</h3>
                     <p style={{fontSize: '13px', marginBottom: '16px', textAlign: 'left'}}>
-                      Welcome to the downloads section! Here you'll find the best FREE software from the 90s. 
-                      All downloads are virus-free and tested on Windows 95/98. Remember to scan with your antivirus!
+                      Welcome to the NETSTALGIA BBS file area! Here you'll find the best FREE software from the 90s. 
+                      All files are virus-free and tested on Windows 95/98. Files are organized by area numbers for easy browsing.
+                      Remember to scan with your antivirus and be patient on 56K connections!
                     </p>
                     
                     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px'}}>
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎵 MUSIC & MEDIA</h4>
+                        <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎵 AREA 3 - MUSIC & MEDIA</h4>
                         <ul style={{fontSize: '12px', textAlign: 'left'}}>
-                          <li><b>WinAmp v2.95 Full</b> - <span style={{color: '#008000'}}>MP3s supported!</span> <a href="https://web.archive.org/web/19961219120000/http://www.winamp.com/" target="_blank">Download here!</a></li>
-                          <li><b>Real Player GOLD</b> - <span style={{color: '#ff00ff'}}>Streaming!</span> <a href="https://web.archive.org/web/19961219120000/http://www.real.com/" target="_blank">Download here!</a></li>
-                          <li><b>Napster 2.0</b> - <span style={{color: '#ff0000'}}>Peer-to-peer!</span> <a href="https://web.archive.org/web/19961219120000/http://www.napster.com/" target="_blank">Download here!</a></li>
-                          <li><b>QuickTime 3.0</b> - <span style={{color: '#ff6600'}}>Apple media!</span> <a href="https://web.archive.org/web/19961219120000/http://www.apple.com/quicktime/" target="_blank">Download here!</a></li>
-                          <li><b>Shockwave Player</b> - <span style={{color: '#ff00ff'}}>Macromedia!</span> <a href="https://web.archive.org/web/19961219120000/http://www.macromedia.com/" target="_blank">Download here!</a></li>
+                          <li><b>WINAMP.EXE v2.95</b> - <span style={{color: '#008000'}}>1.2MB - MP3s supported!</span></li>
+                          <li><b>REALPLAYER.EXE</b> - <span style={{color: '#ff00ff'}}>2.5MB - Streaming!</span></li>
+                          <li><b>NAPSTER.EXE v2.0</b> - <span style={{color: '#ff0000'}}>800KB - Peer-to-peer!</span></li>
+                          <li><b>QUICKTIME.EXE v3.0</b> - <span style={{color: '#ff6600'}}>1.8MB - Apple media!</span></li>
+                          <li><b>SHOCKWAVE.EXE</b> - <span style={{color: '#ff00ff'}}>1.5MB - Macromedia!</span></li>
                         </ul>
                       </div>
                       
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#0000ff', marginBottom: '8px'}}>🌐 INTERNET & BROWSERS</h4>
+                        <h4 style={{fontSize: '14px', color: '#0000ff', marginBottom: '8px'}}>🌐 AREA 2 - INTERNET & BROWSERS</h4>
                         <ul style={{fontSize: '12px', textAlign: 'left'}}>
-                          <li><b>Mozilla 1.0</b> - <span style={{color: '#0000ff'}}>Open source!</span> <a href="https://web.archive.org/web/19961219120000/http://www.mozilla.org/" target="_blank">Download here!</a></li>
-                          <li><b>ICQ 99a</b> - <span style={{color: '#00ff00'}}>Instant messaging!</span> <a href="https://web.archive.org/web/19961219120000/http://www.icq.com/" target="_blank">Download here!</a></li>
-                          <li><b>Java Runtime Environment</b> - <span style={{color: '#008000'}}>Sun Microsystems!</span> <a href="https://web.archive.org/web/19961219120000/http://www.sun.com/" target="_blank">Download here!</a></li>
-                          <li><b>Adobe Acrobat Reader</b> - <span style={{color: '#0000ff'}}>PDF files!</span> <a href="https://web.archive.org/web/19961219120000/http://www.adobe.com/" target="_blank">Download here!</a></li>
+                          <li><b>MOZILLA.EXE v1.0</b> - <span style={{color: '#0000ff'}}>2.1MB - Open source!</span></li>
+                          <li><b>ICQ.EXE v99a</b> - <span style={{color: '#00ff00'}}>1.8MB - Instant messaging!</span></li>
+                          <li><b>JAVA.EXE</b> - <span style={{color: '#008000'}}>3.2MB - Sun Microsystems!</span></li>
+                          <li><b>ACROBAT.EXE</b> - <span style={{color: '#0000ff'}}>2.5MB - PDF files!</span></li>
+                          <li><b>NETSCAPE.EXE v4.7</b> - <span style={{color: '#000080'}}>4.1MB - Navigator!</span></li>
                         </ul>
                       </div>
                     </div>
                     
                     <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎮 GAMES & ENTERTAINMENT</h4>
+                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎮 AREA 1 - GAMES & ENTERTAINMENT</h4>
                       <ul style={{fontSize: '12px', textAlign: 'left'}}>
-                        <li><b>3D Pinball Space Cadet</b> - <span style={{color: '#0000ff'}}>Classic!</span> <a href="https://web.archive.org/web/19961219120000/http://www.microsoft.com/games/" target="_blank">Download here!</a></li>
-                        <li><b>Flying Toasters Screensaver</b> - <span style={{color: '#ff6600'}}>Animated!</span> <a href="https://web.archive.org/web/19961219120000/http://www.berkeley.com/" target="_blank">Download here!</a></li>
-                        <li><b>Bonzi Buddy v3.0</b> - <span style={{color: '#ff0000'}}>FREE!</span> <a href="https://web.archive.org/web/19961219120000/http://www.bonzi.com/" target="_blank">Download here!</a></li>
+                        <li><b>DOOM.EXE v1.9</b> - <span style={{color: '#0000ff'}}>2.3MB - Shareware!</span></li>
+                        <li><b>WOLF3D.EXE</b> - <span style={{color: '#ff6600'}}>1.8MB - Classic!</span></li>
+                        <li><b>KEEN.EXE</b> - <span style={{color: '#ff0000'}}>500KB - Commander Keen!</span></li>
+                        <li><b>TETRIS.EXE</b> - <span style={{color: '#008000'}}>200KB - Classic!</span></li>
+                        <li><b>PINBALL.EXE</b> - <span style={{color: '#0000ff'}}>1.5MB - 3D Space Cadet!</span></li>
                       </ul>
                     </div>
                     
                     <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#008000', marginBottom: '8px'}}>📊 DOWNLOAD STATISTICS</h4>
+                      <h4 style={{fontSize: '14px', color: '#008000', marginBottom: '8px'}}>📊 BBS FILE STATISTICS</h4>
                       <div style={{fontSize: '12px', textAlign: 'left'}}>
+                        <div>• Total Files: 1,247</div>
                         <div>• Total Downloads: 1,247,892</div>
-                        <div>• Most Popular: WinAmp v2.95 (342,156 downloads)</div>
-                        <div>• Server Status: ONLINE</div>
-                        <div>• Last Updated: December 1999</div>
+                        <div>• Most Popular: WINAMP.EXE (342,156 downloads)</div>
+                        <div>• Server Status: ONLINE - Node 1/1</div>
+                        <div>• Last Updated: December 15, 1999</div>
                         <div>• Bandwidth Used: 47.3 GB this month</div>
+                        <div>• Average Download Time: 5-10 minutes (56K)</div>
                       </div>
                     </div>
                     
                     <div style={{border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>⚠️ IMPORTANT NOTICE</h4>
+                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>⚠️ BBS DOWNLOAD NOTICE</h4>
                       <div style={{fontSize: '12px', textAlign: 'left'}}>
-                        <div>• All downloads are FREE and virus-free!</div>
+                        <div>• All files are FREE and virus-free!</div>
                         <div>• Tested on Windows 95/98/ME</div>
                         <div>• Requires 16MB RAM minimum</div>
-                        <div>• 56K modem recommended for faster downloads</div>
+                        <div>• 56K modem recommended - be patient!</div>
                         <div>• Don't forget to scan with your antivirus!</div>
+                        <div>• Files organized by area numbers (1-4)</div>
+                        <div>• Use PKZIP.EXE to extract compressed files</div>
                       </div>
                     </div>
                   </div>
@@ -1133,6 +1231,11 @@ export default function Home() {
 
       {/* Bottom Banner Ads */}
       <BannerAds />
+      
+      {/* BBS Features Section */}
+      <div style={{marginTop: '20px', marginBottom: '20px'}}>
+        <BBSFeatures />
+      </div>
       
       {/* Footer - Always Visible */}
       <div className="center mt-4">

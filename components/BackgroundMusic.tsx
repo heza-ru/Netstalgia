@@ -92,12 +92,23 @@ export default function WinampPlayer({ onPlay, onPause }: WinampPlayerProps) {
     }
   }, [isPlaying])
 
-  // Set initial volume
+  // Set initial volume and try autoplay
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = 0.5
+      // Try to start playing automatically after a delay
+      setTimeout(() => {
+        if (audioRef.current && !isPlaying) {
+          audioRef.current.play().then(() => {
+            setIsPlaying(true)
+          }).catch(() => {
+            // Autoplay blocked, user will need to click play
+            console.log('Autoplay blocked by browser policy')
+          })
+        }
+      }, 2000)
     }
-  }, [])
+  }, [isPlaying])
 
   return (
                 <div
@@ -303,12 +314,24 @@ export default function WinampPlayer({ onPlay, onPause }: WinampPlayerProps) {
         ref={audioRef}
         src="/assets/hamster dance.mp3"
         preload="auto"
+        autoPlay
+        muted
         onEnded={() => setIsPlaying(false)}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onLoadedData={() => {
           if (audioRef.current) {
-            audioRef.current.volume = 1
+            audioRef.current.volume = 0.5
+            // Try to unmute and play after a short delay
+            setTimeout(() => {
+              if (audioRef.current) {
+                audioRef.current.muted = false
+                audioRef.current.play().catch(() => {
+                  // If autoplay fails, keep muted and let user control
+                  console.log('Autoplay blocked by browser')
+                })
+              }
+            }, 1000)
           }
         }}
       />
