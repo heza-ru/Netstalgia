@@ -4754,3 +4754,89 @@ LOADING SCREEN MOBILE OVERRIDE ===== */
         border-color: #ff00ff;
     }
 }
+
+/*=====MOBILE POPUP FIXES=====*/ @media (max-width: 768px) {
+    .popup-container {
+        position: fixed !important;
+        max-width: 90vw !important;
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+        z-index: 1000 !important;
+    }
+
+    .win95-popup {
+        max-width: 90vw !important;
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+    }
+
+    .win95-content {
+        padding: 6px !important;
+        font-size: 10px !important;
+        line-height: 1.3 !important;
+    }
+
+    .win95-titlebar {
+        padding: 2px 4px !important;
+        font-size: 10px !important;
+    }
+
+    .win95-button {
+        padding: 3px 8px !important;
+        font-size: 10px !important;
+        margin: 1px !important;
+    }
+
+    .win95-button-enhanced {
+        padding: 3px 8px !important;
+        font-size: 10px !important;
+        margin: 1px !important;
+        min-width: 60px !important;
+    }
+
+    /* Prevent popups from extending below viewport */
+    .popup-container {
+        bottom: 10px !important;
+        top: auto !important;
+    }
+
+    /* Mobile navbar improvements */
+    .nav-links {
+        flex-wrap: wrap !important;
+        gap: 2px !important;
+        padding: 4px !important;
+    }
+
+    .nav-links a {
+        font-size: 9px !important;
+        padding: 1px 2px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .popup-container {
+        max-width: 95vw !important;
+        max-height: 60vh !important;
+    }
+
+    .win95-popup {
+        max-width: 95vw !important;
+        max-height: 60vh !important;
+    }
+
+    .win95-content {
+        padding: 4px !important;
+        font-size: 9px !important;
+    }
+
+    .win95-titlebar {
+        font-size: 9px !important;
+    }
+
+    .win95-button,
+    .win95-button-enhanced {
+        padding: 2px 6px !important;
+        font-size: 9px !important;
+        min-width: 50px !important;
+    }
+}

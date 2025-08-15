@@ -27,6 +27,9 @@ import PixelatedParticles from '../components/PixelatedParticles'
 import CRTEffects from '../components/CRTEffects'
 import PixelatedHoverEffects from '../components/PixelatedHoverEffects'
 import MobileEnhancements from '../components/MobileEnhancements'
+import MobilePopupFix from '../components/MobilePopupFix'
+import GitHubStarRansomware from '../components/GitHubStarRansomware'
+import GitHubRansomwareScreen from '../components/GitHubRansomwareScreen'
 
 import Navbar from './Navbar'
 import BBSFeatures from '../components/BBSFeatures'
@@ -57,9 +60,25 @@ export default function Home() {
     secretCode: undefined
   })
   const [typedText, setTypedText] = useState('')
+  const [hasStarredRepo, setHasStarredRepo] = useState(false)
+  const [showRansomware, setShowRansomware] = useState(false)
 
   const handleLoadingComplete = () => {
     setIsLoading(false)
+  }
+
+  const handleRepoStarred = () => {
+    setHasStarredRepo(true)
+    setShowRansomware(false)
+  }
+
+  const handleRansomwareTriggered = () => {
+    setShowRansomware(true)
+  }
+
+  const handleRansomwareEscape = () => {
+    setShowRansomware(false)
+    setHasStarredRepo(true) // Treat escape as "starred" to prevent re-triggering
   }
 
   const handleEasterEgg = () => {
@@ -183,6 +202,15 @@ export default function Home() {
     )
   }
 
+  if (showRansomware) {
+    return (
+      <GitHubRansomwareScreen
+        onStarred={handleRepoStarred}
+        onEscape={handleRansomwareEscape}
+      />
+    )
+  }
+
   if (isLoading) {
     return <LoadingScreen onComplete={handleLoadingComplete} />
   }
@@ -205,6 +233,15 @@ export default function Home() {
       <CRTEffects />
       <PixelatedHoverEffects />
       <MobileEnhancements />
+      <MobilePopupFix />
+
+      {/* GitHub Star Ransomware */}
+      {!hasStarredRepo && (
+        <GitHubStarRansomware
+          onStarred={handleRepoStarred}
+          onRansomwareTriggered={handleRansomwareTriggered}
+        />
+      )}
 
       <MailNotification />
       <EasterEggManager />
