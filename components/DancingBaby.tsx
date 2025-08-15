@@ -63,7 +63,7 @@ export default function DancingBaby({ onTripleClick }: DancingBabyProps) {
           imageRendering: 'pixelated'
         }}
       >
-        <img
+<img
           src="/assets/dancing-baby.gif"
           alt="Famous Dancing Baby from 1996"
           className="scale-pixel-2x"
@@ -71,9 +71,7 @@ export default function DancingBaby({ onTripleClick }: DancingBabyProps) {
             border: 'none',
             background: '#ffffff',
             padding: '4px',
-            imageRendering: 'pixelated',
-            imageRendering: '-moz-crisp-edges',
-            imageRendering: 'crisp-edges'
+            imageRendering: 'pixelated'
           }}
         />
 
