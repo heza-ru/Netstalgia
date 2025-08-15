@@ -1,7 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Remove Tailwind CSS imports - not compatible with 90s aesthetic */
+/* Using pure CSS for authentic retro styling */
 
+/* Base reset already handled in main CSS file */
+/* Components defined in Windows 95 UI Chrome System */
+/* Utilities provided through pixelated and retro classes */
 /* Authentic 90s Web Fonts - Enhanced Loading with WordArt Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Courier+New:wght@400;700&family=Consolas:wght@400;700&family=Impact:wght@400&family=Comic+Neue:wght@400;700&family=Creepster&family=Nosifer&family=Butcherman&family=Chela+One&family=Bungee&family=Fredoka+One:wght@400&display=swap');
 
@@ -2863,7 +2865,7 @@ li {
   }
 }
 
-@keyfr ames rainbowBorder {
+@keyframes rainbowBorder {
   0% {
     border-color: #ff0000;
   }
@@ -3136,7 +3138,7 @@ body.crt-mode-active .rainbow-text {
     0 0 6px rgba(255, 255, 255, 0.1);
 }
 
-/ *=====MOBILE RESPONSIVE DESIGN=====*/
+/*=====MOBILE RESPONSIVE DESIGN=====*/
 /* Mobile-first approach with 90s aesthetic preserved */
 @media screen and (max-width: 768px) {
 
@@ -3635,7 +3637,7 @@ body.crt-mode-active .rainbow-text {
   }
 }
 
-/ *=====MOBILE ENHANCEMENT STYLES=====*/
+/*=====MOBILE ENHANCEMENT STYLES=====*/
 /* Touch feedback styles */
 .touch-active {
   transform: scale(0.95) !important;
