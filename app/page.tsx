@@ -15,35 +15,51 @@ import WinampPlayer from '../components/BackgroundMusic'
 import EasterEggModal from '../components/EasterEggModal'
 import VideoPopup from '../components/VideoPopup'
 import SystemCrash from '../components/SystemCrash'
+import CrashTrigger from '../components/CrashTrigger'
 import UnderConstruction from '../components/UnderConstruction'
+import UnderConstructionManager from '../components/UnderConstructionManager'
 import MarqueeText from '../components/MarqueeText'
 import SecretEasterEgg from '../components/SecretEasterEgg'
-import Starfield from '../components/Starfield'
+import ClickCounter from '../components/ClickCounter'
+import WordArt, { WordArtTitle, WordArtHeader, WordArtAccent } from '../components/WordArt'
+import PixelatedCursorTrail from '../components/PixelatedCursorTrail'
+import PixelatedParticles from '../components/PixelatedParticles'
+import CRTEffects from '../components/CRTEffects'
+import PixelatedHoverEffects from '../components/PixelatedHoverEffects'
+import MobileEnhancements from '../components/MobileEnhancements'
+
 import Navbar from './Navbar'
 import BBSFeatures from '../components/BBSFeatures'
+import KonamiCodeDetector from '../components/KonamiCodeDetector'
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [showEasterEgg, setShowEasterEgg] = useState(false)
   const [showCrash, setShowCrash] = useState(false)
+  const [crashInfo, setCrashInfo] = useState<{
+    reason: string
+    source: string
+  } | null>(null)
   const [selectedSite, setSelectedSite] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
   const [easterEggCount, setEasterEggCount] = useState(0)
-  const [showStarfield, setShowStarfield] = useState(false)
+
   const [currentPage, setCurrentPage] = useState('home')
   const [videoPopup, setVideoPopup] = useState<{
     isOpen: boolean
     videoSrc: string
     title: string
+    secretCode?: string
   }>({
     isOpen: false,
     videoSrc: '',
-    title: ''
+    title: '',
+    secretCode: undefined
   })
   const [typedText, setTypedText] = useState('')
 
   const handleLoadingComplete = () => {
-      setIsLoading(false)
+    setIsLoading(false)
   }
 
   const handleEasterEgg = () => {
@@ -51,87 +67,62 @@ export default function Home() {
     setEasterEggCount(prev => prev + 1)
   }
 
-  const handleSystemCrash = () => {
+  const handleSystemCrash = (reason?: string, source?: string) => {
+    setCrashInfo({
+      reason: reason || 'User clicked suspicious popup advertisement',
+      source: source || 'Popup Advertisement'
+    })
     setShowCrash(true)
   }
 
   const handleRestart = () => {
     setShowCrash(false)
+    setCrashInfo(null)
     // Maybe spawn more popups after restart as punishment
   }
 
   const handleSecretTrigger = () => {
     setEasterEggCount(prev => prev + 1)
-    setShowStarfield(true)
-    setTimeout(() => setShowStarfield(false), 5000)
+    const customEvent = new CustomEvent('triggerEasterEgg', {
+      detail: { type: 'starfield-effect', source: 'secret-trigger' }
+    })
+    window.dispatchEvent(customEvent)
   }
 
-  // Keyboard event listener for easter eggs
+  // Enhanced Konami code handler
+  const handleKonamiActivated = (code: string) => {
+    setVideoPopup({
+      isOpen: true,
+      videoSrc: '/assets/konami.mp4',
+      title: 'KONAMI CODE ACTIVATED!',
+      secretCode: 'konami'
+    })
+    setEasterEggCount(prev => prev + 1)
+  }
+
+  // Enhanced text code handler
+  const handleTextCodeActivated = (code: string, title: string) => {
+    const videoSrc = `/assets/${code.toLowerCase().replace(' ', '')}.mp4`
+    setVideoPopup({
+      isOpen: true,
+      videoSrc: videoSrc,
+      title: title,
+      secretCode: code.toLowerCase().replace(' ', '')
+    })
+    setEasterEggCount(prev => prev + 1)
+  }
+
+  // Simplified keyboard event listener for remaining shortcuts
   useEffect(() => {
-    let konamiSequence: string[] = []
-    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA']
-    
     const handleKeyPress = (event: KeyboardEvent) => {
-      // Starfield toggle
+      // Starfield toggle - trigger enhanced starfield effect
       if (event.key === 's' || event.key === 'S') {
-        setShowStarfield(prev => !prev)
-      }
-      
-      // Text input for secret codes
-      if (event.key.length === 1) {
-        setTypedText(prev => {
-          const newText = prev + event.key.toUpperCase()
-          const last10 = newText.slice(-10)
-          
-          // Check for CONTRA
-          if (last10.includes('CONTRA')) {
-            setVideoPopup({
-              isOpen: true,
-              videoSrc: '/assets/konami.mp4',
-              title: 'CONTRA - UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A'
-            })
-            return ''
-          }
-          
-          // Check for NINTENDO
-          if (last10.includes('NINTENDO')) {
-            setVideoPopup({
-              isOpen: true,
-              videoSrc: '/assets/nintendo.mp4',
-              title: 'NINTENDO - IT\'S ON LIKE DONKEY KONG!'
-            })
-            return ''
-          }
-          
-          return newText
+        const customEvent = new CustomEvent('triggerEasterEgg', {
+          detail: { type: 'starfield-effect', source: 'keyboard-shortcut' }
         })
+        window.dispatchEvent(customEvent)
       }
-      
-      // Clear text on backspace
-      if (event.key === 'Backspace') {
-        setTypedText(prev => prev.slice(0, -1))
-      }
-      
-      // Konami Code detection
-      konamiSequence.push(event.code)
-      if (konamiSequence.length > konamiCode.length) {
-        konamiSequence.shift()
-      }
-      
-      if (konamiSequence.join(',') === konamiCode.join(',')) {
-        setVideoPopup({
-          isOpen: true,
-          videoSrc: '/assets/konami.mp4',
-          title: 'KONAMI CODE ACTIVATED!'
-        })
-        konamiSequence = []
-      }
-      
-      // Other secret codes
-      if (event.key === 'h' && event.ctrlKey) {
-        alert('🎯 SECRET HELP MENU! 🎯\n\nKeyboard Shortcuts:\n• S - Toggle Starfield\n• Ctrl+H - This help menu\n• Konami Code - ↑↑↓↓←→←→BA\n• Type "CONTRA" for Contra video\n• Type "NINTENDO" for Nintendo video\n\nEaster Eggs:\n• Click the dancing baby\n• Click banner ads\n• Use web ring navigation\n• Wait for mail notification\n\nHave fun exploring! 🌟')
-      }
-      
+
       // Matrix effect trigger
       if (event.key === 'm' && event.ctrlKey) {
         const customEvent = new CustomEvent('triggerEasterEgg', {
@@ -139,10 +130,26 @@ export default function Home() {
         })
         window.dispatchEvent(customEvent)
       }
+
+      // Enhanced secret help menu
+      if (event.key === 'h' && event.ctrlKey) {
+        alert('🎯 SECRET HELP MENU! 🎯\n\nKeyboard Shortcuts:\n• S - Toggle Starfield\n• C - Toggle CRT Mode (authentic scanlines & effects)\n• T - Toggle Cursor Trail\n• Ctrl+M - Matrix effect\n• Ctrl+H - This help menu\n• Konami Code - ↑↑↓↓←→←→BA\n\nVisual Effects:\n• CRT Mode: Click the indicator in top-right corner\n• Pixelated hover effects on all interactive elements\n• Authentic low-resolution particle effects\n\nSecret Text Codes:\n• Type "CONTRA" for 30 lives cheat\n• Type "NINTENDO" for Nintendo Power\n• Type "DOOM" for god mode\n• Type "MORTAL KOMBAT" for fatality\n• Type "STREET FIGHTER" for hadoken\n• Type "QUAKE" for rocket launcher\n• Type "WARCRAFT" for cheat mode\n• Type "STARCRAFT" for show me the money\n• Type "GOLDENEYE" for invincibility\n• Type "MARIO" for warp zone\n\nEaster Eggs:\n• Click the dancing baby\n• Click banner ads\n• Use web ring navigation\n• Wait for mail notification\n\nHave fun exploring! 🌟')
+      }
     }
-    
+
+    const handleClickCounterIncrement = (event: CustomEvent) => {
+      // This will be handled by the ClickCounter components themselves
+      // We just need to make sure the event propagates
+      console.log('Click counter increment:', event.detail.target)
+    }
+
     window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
+    window.addEventListener('incrementClickCounter', handleClickCounterIncrement as EventListener)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+      window.removeEventListener('incrementClickCounter', handleClickCounterIncrement as EventListener)
+    }
   }, [])
 
   const famousSites = [
@@ -167,7 +174,13 @@ export default function Home() {
   ]
 
   if (showCrash) {
-    return <SystemCrash onRestart={handleRestart} />
+    return (
+      <SystemCrash
+        onRestart={handleRestart}
+        crashReason={crashInfo?.reason}
+        triggerSource={crashInfo?.source}
+      />
+    )
   }
 
   if (isLoading) {
@@ -182,17 +195,31 @@ export default function Home() {
     }}>
       <WinampPlayer />
       <PopupAds onSystemCrash={handleSystemCrash} />
+      <CrashTrigger onCrash={handleSystemCrash} />
+      <UnderConstructionManager />
       <SecretEasterEgg onTrigger={handleSecretTrigger} />
-      {showStarfield && <Starfield />}
+
+      {/* Enhanced Pixelated Effects */}
+      <PixelatedCursorTrail />
+      <PixelatedParticles />
+      <CRTEffects />
+      <PixelatedHoverEffects />
+      <MobileEnhancements />
+
       <MailNotification />
       <EasterEggManager />
-      <VideoPopup 
+      <KonamiCodeDetector
+        onKonamiActivated={handleKonamiActivated}
+        onTextCodeActivated={handleTextCodeActivated}
+      />
+      <VideoPopup
         isOpen={videoPopup.isOpen}
         videoSrc={videoPopup.videoSrc}
         title={videoPopup.title}
+        secretCode={videoPopup.secretCode}
         onClose={() => setVideoPopup(prev => ({ ...prev, isOpen: false }))}
       />
-      
+
       {/* Title Section - Always Visible */}
       <div className="title-section pixelated-window" style={{
         background: '#ecece0',
@@ -207,7 +234,7 @@ export default function Home() {
         imageRendering: 'pixelated'
       }}>
         {/* Left: NETSTALGIA.COM Branding */}
-        <div style={{
+        <div className="title-branding" style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -224,7 +251,7 @@ export default function Home() {
             lineHeight: '1.1',
             letterSpacing: '2px'
           }}>
-            NETSTALGIA
+            <WordArt style="3d" probability={1.0}>NETSTALGIA</WordArt>
           </div>
           <div className="font-large pixelated-title" style={{
             fontSize: '40px',
@@ -245,9 +272,9 @@ export default function Home() {
             * THE COOLEST SITE ON THE WEB! *
           </div>
         </div>
-        
+
         {/* Center: Search and Navigation */}
-        <div style={{
+        <div className="title-search" style={{
           display: 'flex',
           flexDirection: 'column',
           gap: '8px',
@@ -255,7 +282,7 @@ export default function Home() {
           maxWidth: '300px'
         }}>
           {/* Famous Sites Dropdown */}
-          <div style={{position: 'relative'}}>
+          <div style={{ position: 'relative' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -304,7 +331,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            
+
             {/* Dropdown Menu */}
             {showDropdown && (
               <div style={{
@@ -372,9 +399,9 @@ export default function Home() {
             </button>
           </div>
         </div>
-        
+
         {/* Right: Signup Section */}
-        <div style={{
+        <div className="title-signup" style={{
           display: 'flex',
           flexDirection: 'column',
           gap: '6px',
@@ -415,21 +442,33 @@ export default function Home() {
                 fontFamily: 'MS Sans Serif, Arial, sans-serif'
               }}
             />
-            <button style={{
-              background: '#cdc7bb',
-              border: '2px outset #cdc7bb',
-              padding: '2px 6px',
-              fontSize: '11px',
-              cursor: 'pointer',
-              fontFamily: 'MS Sans Serif, Arial, sans-serif'
-            }}>
+            <button
+              onClick={() => {
+                // Trigger construction page for member signup
+                const event = new CustomEvent('constructionTrigger', {
+                  detail: {
+                    trigger: 'members-only',
+                    customMessage: 'MEMBER SIGNUP TEMPORARILY OFFLINE',
+                    customExcuse: 'Our member database is being upgraded from Microsoft Access 95 to Access 97! This will allow us to store up to 50 members instead of 25!'
+                  }
+                })
+                window.dispatchEvent(event)
+              }}
+              style={{
+                background: '#cdc7bb',
+                border: '2px outset #cdc7bb',
+                padding: '2px 6px',
+                fontSize: '11px',
+                cursor: 'pointer',
+                fontFamily: 'MS Sans Serif, Arial, sans-serif'
+              }}>
               JOIN NOW!
             </button>
           </div>
         </div>
 
         {/* Misaligned Ad */}
-        <div style={{
+        <div className="title-ad" style={{
           position: 'relative',
           transform: 'rotate(-2deg)',
           marginTop: '-10px',
@@ -459,9 +498,9 @@ export default function Home() {
               fontSize: '12px',
               color: '#000000'
             }}>
-              CLICK HERE TO<br/>
-              WIN $1000!<br/>
-              <span style={{fontSize: '10px'}}>NO SPAM!</span>
+              CLICK HERE TO<br />
+              WIN $1000!<br />
+              <span style={{ fontSize: '10px' }}>NO SPAM!</span>
             </div>
           </div>
         </div>
@@ -470,148 +509,182 @@ export default function Home() {
       {/* Navbar - Always Visible */}
       <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
-      {/* Vintage Images Section - Always Visible */}
-      <div className="center mb-4">
-        <div className="vintage-image">
-          <img 
-            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='90' viewBox='0 0 120 90'><rect width='120' height='90' fill='%23ff0000'/><text x='60' y='45' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>NEW!</text><text x='60' y='60' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>VISITOR</text></svg>" 
-            alt="NEW! Visitor Badge" 
-            style={{width: '120px', height: '90px'}}
-          />
-        </div>
-        <div className="vintage-image">
-          <img 
-            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='90' viewBox='0 0 120 90'><rect width='120' height='90' fill='%2300ff00'/><text x='60' y='45' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>COOL</text><text x='60' y='60' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>SITE!</text></svg>" 
-            alt="COOL SITE! Badge" 
-            style={{width: '120px', height: '90px'}}
-          />
-        </div>
-        <div className="vintage-image">
-          <img 
-            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='90' viewBox='0 0 120 90'><rect width='120' height='90' fill='%230000ff'/><text x='60' y='45' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>Y2K</text><text x='60' y='60' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>READY!</text></svg>" 
-            alt="Y2K READY! Badge" 
-            style={{width: '120px', height: '90px'}}
-          />
-        </div>
-          </div>
-
       {/* Main Content Table Layout - Always Visible */}
       <table width="100%" cellPadding="8" cellSpacing="0" className="data-table">
         <tr>
           {/* Left Sidebar - Always Visible */}
           <td width="200" valign="top">
-                          <div className="retro-border" style={{
-                border: '3px outset #cdc7bb',
-                boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2)',
-                background: 'linear-gradient(45deg, #ecece0 0%, #cdc7bb 50%, #ecece0 100%)',
-                backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'30\' height=\'30\' viewBox=\'0 0 30 30\'><rect width=\'30\' height=\'30\' fill=\'%23ecece0\'/><polygon points=\'15,5 20,15 15,25 10,15\' fill=\'%23cdc7bb\' opacity=\'0.3\'/></svg>")'
+            <div className="retro-border" style={{
+              border: '3px outset #cdc7bb',
+              boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2)',
+              background: 'linear-gradient(45deg, #ecece0 0%, #cdc7bb 50%, #ecece0 100%)',
+              backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'30\' height=\'30\' viewBox=\'0 0 30 30\'><rect width=\'30\' height=\'30\' fill=\'%23ecece0\'/><polygon points=\'15,5 20,15 15,25 10,15\' fill=\'%23cdc7bb\' opacity=\'0.3\'/></svg>")'
+            }}>
+              <h2 className="font-large text-web-purple center rainbow-text" style={{ fontSize: '20px' }}>
+                <WordArtTitle>* COOL STUFF *</WordArtTitle>
+              </h2>
+
+              <HitCounter />
+
+              <VisitorCounter />
+
+              {/* Interactive Click Counters */}
+              <div style={{
+                background: '#ffffff',
+                border: '2px inset #cdc7bb',
+                padding: '8px',
+                margin: '8px 0',
+                textAlign: 'center'
               }}>
-                <h2 className="font-large text-web-purple center rainbow-text" style={{fontSize: '16px'}}>
-                  * COOL STUFF *
-                </h2>
-          
-          <HitCounter />
-          
-          <WebRing />
-          
+                <div style={{
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  color: '#000080',
+                  marginBottom: '6px'
+                }}>
+                  ★ CLICK COUNTERS ★
+                </div>
+                <ClickCounter
+                  target="Dancing Baby"
+                  persistKey="dancing-baby-clicks"
+                  showStats={true}
+                  onMilestone={(count) => {
+                    if (count === 100) {
+                      // Trigger special easter egg at 100 clicks
+                      window.dispatchEvent(new CustomEvent('easterEgg', {
+                        detail: { type: 'starfield-effect', source: 'click' }
+                      }))
+                    }
+                  }}
+                />
+                <ClickCounter
+                  target="Hot Links"
+                  persistKey="hot-links-clicks"
+                  showStats={true}
+                />
+                <ClickCounter
+                  target="Awards"
+                  persistKey="awards-clicks"
+                  showStats={true}
+                />
+              </div>
+
+              <WebRing />
+
               <div className="mt-4">
                 <div className="retro-border-inset">
-                  <h3 className="font-normal text-web-blue center" style={{fontSize: '13px'}}>* HOT LINKS! *</h3>
-                  <div className="nav-links">
-                                          <a href="https://web.archive.org/web/19961017235908/http://www2.yahoo.com/" target="_blank" style={{fontSize: '12px'}}>YAHOO! (THE BEST SEARCH ENGINE EVER!)</a>
-                      <a href="https://web.archive.org/web/19961110030000/http://www.altavista.digital.com/" target="_blank" style={{fontSize: '12px'}}>ALTAVISTA (BEATS GOOGLE!)</a>
-                      <a href="https://web.archive.org/web/19961226182558/http://www3.geocities.com/" target="_blank" style={{fontSize: '12px'}}>GEOCITIES (FREE HOSTING!)</a>
-                      <a href="https://web.archive.org/web/19961219120000/http://www.angelfire.com/" target="_blank" style={{fontSize: '12px'}}>ANGELFIRE (MORE FREE HOSTING!)</a>
-                      <a href="https://web.archive.org/web/19961219120000/http://home.netscape.com/" target="_blank" style={{fontSize: '12px'}}>NETSCAPE (INTERNET EXPLORER SUCKS!)</a>
-                      <a href="https://web.archive.org/web/19961219120000/http://www.lycos.com/" target="_blank" style={{fontSize: '12px'}}>LYCOS (FETCH!)</a>
-                      <a href="https://web.archive.org/web/19961219120000/http://www.excite.com/" target="_blank" style={{fontSize: '12px'}}>EXCITE (WOW!)</a>
-                      <a href="https://web.archive.org/web/19961219120000/http://www.webcrawler.com/" target="_blank" style={{fontSize: '12px'}}>WEBCRAWLER (SPIDER POWER!)</a>
+                  <h3 className="font-normal text-web-blue center" style={{ fontSize: '16px' }}>* HOT LINKS! *</h3>
+                  <div className="nav-links" onClick={() => {
+                    // Increment hot links click counter
+                    const event = new CustomEvent('incrementClickCounter', {
+                      detail: { target: 'Hot Links' }
+                    })
+                    window.dispatchEvent(event)
+                  }}>
+                    <a href="https://web.archive.org/web/19961017235908/http://www2.yahoo.com/" target="_blank" style={{ fontSize: '12px' }}>YAHOO! (THE BEST SEARCH ENGINE EVER!)</a>
+                    <a href="https://web.archive.org/web/19961110030000/http://www.altavista.digital.com/" target="_blank" style={{ fontSize: '12px' }}>ALTAVISTA (BEATS GOOGLE!)</a>
+                    <a href="https://web.archive.org/web/19961226182558/http://www3.geocities.com/" target="_blank" style={{ fontSize: '12px' }}>GEOCITIES (FREE HOSTING!)</a>
+                    <a href="https://web.archive.org/web/19961219120000/http://www.angelfire.com/" target="_blank" style={{ fontSize: '12px' }}>ANGELFIRE (MORE FREE HOSTING!)</a>
+                    <a href="https://web.archive.org/web/19961219120000/http://home.netscape.com/" target="_blank" style={{ fontSize: '12px' }}>NETSCAPE (INTERNET EXPLORER SUCKS!)</a>
+                    <a href="https://web.archive.org/web/19961219120000/http://www.lycos.com/" target="_blank" style={{ fontSize: '12px' }}>LYCOS (FETCH!)</a>
+                    <a href="https://web.archive.org/web/19961219120000/http://www.excite.com/" target="_blank" style={{ fontSize: '12px' }}>EXCITE (WOW!)</a>
+                    <a href="https://web.archive.org/web/19961219120000/http://www.webcrawler.com/" target="_blank" style={{ fontSize: '12px' }}>WEBCRAWLER (SPIDER POWER!)</a>
                   </div>
                 </div>
               </div>
 
               <div className="mt-4">
-                <div className="retro-border-inset" style={{background: '#ecece0'}}>
-                  <h3 className="font-normal text-web-red center blink" style={{fontSize: '13px'}}>* AWARDS & HONORS *</h3>
-                  <div className="center font-small">
-                                          <div className="text-web-yellow" style={{fontSize: '11px'}}>* COOL SITE OF THE DAY *</div>
-                      <div className="text-web-blue" style={{fontSize: '11px'}}>YAHOO! FEATURED SITE</div>
-                      <div className="text-web-green" style={{fontSize: '11px'}}>TOP 50 GEOCITIES</div>
-                      <div className="text-web-purple" style={{fontSize: '11px'}}>NETSCAPE WHAT'S COOL</div>
-                      <div className="text-web-red" style={{fontSize: '11px'}}>POINT COMMUNICATIONS TOP 5%</div>
-                      <div className="text-web-cyan" style={{fontSize: '11px'}}>MAGELLAN 4-STAR SITE</div>
+                <div className="retro-border-inset" style={{ background: '#ecece0' }}>
+                  <h3 className="font-normal text-web-red center blink" style={{ fontSize: '13px' }}>* AWARDS & HONORS *</h3>
+                  <div className="center font-small" onClick={() => {
+                    // Increment awards click counter
+                    const event = new CustomEvent('incrementClickCounter', {
+                      detail: { target: 'Awards' }
+                    })
+                    window.dispatchEvent(event)
+                  }}>
+                    <div className="text-web-yellow" style={{ fontSize: '11px' }}>* COOL SITE OF THE DAY *</div>
+                    <div className="text-web-blue" style={{ fontSize: '11px' }}>YAHOO! FEATURED SITE</div>
+                    <div className="text-web-green" style={{ fontSize: '11px' }}>TOP 50 GEOCITIES</div>
+                    <div className="text-web-purple" style={{ fontSize: '11px' }}>NETSCAPE WHAT'S COOL</div>
+                    <div className="text-web-red" style={{ fontSize: '11px' }}>POINT COMMUNICATIONS TOP 5%</div>
+                    <div className="text-web-cyan" style={{ fontSize: '11px' }}>MAGELLAN 4-STAR SITE</div>
                   </div>
                 </div>
               </div>
 
               <div className="mt-4">
-                <div className="retro-border-inset" style={{background: '#ecece0'}}>
-                  <h3 className="font-normal text-web-green center" style={{fontSize: '13px'}}>* CONTACT THE WEBMASTER! *</h3>
+                <div className="retro-border-inset" style={{ background: '#ecece0' }}>
+                  <h3 className="font-normal text-web-green center" style={{ fontSize: '16px' }}>
+                    <WordArtHeader>* CONTACT THE WEBMASTER! *</WordArtHeader>
+                  </h3>
                   <div className="center font-small">
-                                          <div style={{fontSize: '11px'}}>E-MAIL: <a href="mailto:webmaster@netstalgia.com">webmaster@netstalgia.com</a></div>
-                      <div style={{fontSize: '11px'}}>ICQ: <a href="https://web.archive.org/web/19961219120000/http://www.icq.com/" target="_blank">12345678</a></div>
-                      <div style={{fontSize: '11px'}}>AIM: <a href="https://web.archive.org/web/19961219120000/http://www.aim.com/" target="_blank">NetstalgiaKid</a></div>
-                      <div style={{fontSize: '11px'}}>MSN: <a href="https://web.archive.org/web/19961219120000/http://www.hotmail.com/" target="_blank">netmaster@hotmail.com</a></div>
-                      <div style={{fontSize: '11px'}}>YAHOO!: <a href="https://web.archive.org/web/19961219120000/http://messenger.yahoo.com/" target="_blank">webguru1996</a></div>
-                      <div style={{fontSize: '11px'}}>PAGER: 1-800-PAGE-ME</div>
-                      <div style={{fontSize: '11px'}}>FAX: (555) 123-4567</div>
-                      <div style={{fontSize: '11px'}}>SNAIL MAIL: PO Box 1996, Web City, CA 90210</div>
+                    <div style={{ fontSize: '14px' }}>E-MAIL: <a href="mailto:webmaster@netstalgia.com">webmaster@netstalgia.com</a></div>
+                    <div style={{ fontSize: '14px' }}>ICQ: <a href="https://web.archive.org/web/19961219120000/http://www.icq.com/" target="_blank">12345678</a></div>
+                    <div style={{ fontSize: '14px' }}>AIM: <a href="https://web.archive.org/web/19961219120000/http://www.aim.com/" target="_blank">
+                      <WordArtAccent>NetstalgiaKid</WordArtAccent>
+                    </a></div>
+                    <div style={{ fontSize: '14px' }}>MSN: <a href="https://web.archive.org/web/19961219120000/http://www.hotmail.com/" target="_blank">netmaster@hotmail.com</a></div>
+                    <div style={{ fontSize: '14px' }}>YAHOO!: <a href="https://web.archive.org/web/19961219120000/http://messenger.yahoo.com/" target="_blank">webguru1996</a></div>
+                    <div style={{ fontSize: '11px' }}>PAGER: 1-800-PAGE-ME</div>
+                    <div style={{ fontSize: '11px' }}>FAX: (555) 123-4567</div>
+                    <div style={{ fontSize: '11px' }}>SNAIL MAIL: PO Box 1996, Web City, CA 90210</div>
                   </div>
-            </div>
-          </div>
-
-                          <div className="mt-4" style={{border: '3px solid #896b4f', padding: '4px', background: '#ecece0'}}>
-              <div className="center font-small text-web-red" style={{fontSize: '11px'}}>
-                * WARNING! *<br/>
-                CLICKING ON ADS MAY<br/>
-                DOWNLOAD VIRUSES!<br/>
-                (BUT DO IT ANYWAY!)
+                </div>
               </div>
-            </div>
 
-            {/* Hidden Easter Egg Section */}
-            <div className="mt-4" style={{border: '2px solid #896b4f', padding: '4px', background: '#ecece0', cursor: 'pointer'}} onClick={() => {
-              alert('🎉 SECRET FOUND! 🎉\n\nYou discovered the hidden 90s trivia section!\n\nDid you know?\n• Windows 95 launched on August 24, 1995\n• The first iPhone was released in 2007 (not 90s!)\n• Dial-up max speed was 56K\n• Floppy disks held 1.44MB\n• Tamagotchi was released in 1996\n• Pokemon Red/Blue came out in 1996\n• Y2K bug scare was in 1999\n• Napster launched in 1999\n\nYou\'re a true 90s expert! 🌟')
-            }}>
-              <div className="center font-small text-web-purple" style={{fontSize: '11px'}}>
-                * CLICK FOR SECRET! *
+              <div className="mt-4" style={{ border: '3px solid #896b4f', padding: '4px', background: '#ecece0' }}>
+                <div className="center font-small text-web-red" style={{ fontSize: '11px' }}>
+                  * WARNING! *<br />
+                  CLICKING ON ADS MAY<br />
+                  DOWNLOAD VIRUSES!<br />
+                  (BUT DO IT ANYWAY!)
+                </div>
               </div>
-          </div>
 
-            {/* 90s Trivia Corner */}
-            <div className="mt-4">
-              <div className="retro-border-inset" style={{background: '#ecece0'}}>
-                <h3 className="font-normal text-web-cyan center" style={{fontSize: '13px'}}>* 90s TRIVIA CORNER! *</h3>
-                                  <div className="center font-small" style={{fontSize: '11px'}}>
-                  <div>• Windows 95 launched in 1995</div>
-                  <div>• First iPhone: 2007 (not 90s!)</div>
-                  <div>• Dial-up: 56K max speed</div>
-                  <div>• Floppy disks: 1.44MB storage</div>
-                  <div>• Tamagotchi: 1996 release</div>
-                  <div>• Pokemon: 1996 in Japan</div>
-                  <div>• Y2K bug scare: 1999</div>
-                  <div>• Napster: 1999 launch</div>
-                  <div>• Beanie Babies craze: 1995-1999</div>
-                  <div>• Friends TV show: 1994-2004</div>
-                  <div>• Titanic movie: 1997</div>
-                  <div>• Titanic song: 1997</div>
+              {/* Hidden Easter Egg Section */}
+              <div className="mt-4" style={{ border: '2px solid #896b4f', padding: '4px', background: '#ecece0', cursor: 'pointer' }} onClick={() => {
+                alert('🎉 SECRET FOUND! 🎉\n\nYou discovered the hidden 90s trivia section!\n\nDid you know?\n• Windows 95 launched on August 24, 1995\n• The first iPhone was released in 2007 (not 90s!)\n• Dial-up max speed was 56K\n• Floppy disks held 1.44MB\n• Tamagotchi was released in 1996\n• Pokemon Red/Blue came out in 1996\n• Y2K bug scare was in 1999\n• Napster launched in 1999\n\nYou\'re a true 90s expert! 🌟')
+              }}>
+                <div className="center font-small text-web-purple" style={{ fontSize: '11px' }}>
+                  * CLICK FOR SECRET! *
+                </div>
+              </div>
+
+              {/* 90s Trivia Corner */}
+              <div className="mt-4">
+                <div className="retro-border-inset" style={{ background: '#ecece0' }}>
+                  <h3 className="font-normal text-web-cyan center" style={{ fontSize: '13px' }}>* 90s TRIVIA CORNER! *</h3>
+                  <div className="center font-small" style={{ fontSize: '11px' }}>
+                    <div>• Windows 95 launched in 1995</div>
+                    <div>• First iPhone: 2007 (not 90s!)</div>
+                    <div>• Dial-up: 56K max speed</div>
+                    <div>• Floppy disks: 1.44MB storage</div>
+                    <div>• Tamagotchi: 1996 release</div>
+                    <div>• Pokemon: 1996 in Japan</div>
+                    <div>• Y2K bug scare: 1999</div>
+                    <div>• Napster: 1999 launch</div>
+                    <div>• Beanie Babies craze: 1995-1999</div>
+                    <div>• Friends TV show: 1994-2004</div>
+                    <div>• Titanic movie: 1997</div>
+                    <div>• Titanic song: 1997</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </td>
 
           {/* Main Content - Page Specific */}
           <td valign="top">
             {currentPage === 'home' && (
-              <div className="retro-border" style={{background: '#ecece0'}}>
+              <div className="retro-border" style={{ background: '#ecece0' }}>
                 <div className="center">
-                  <h2 className="font-large text-web-blue rainbow-text" style={{fontSize: '18px'}}>
-                    WELCOME TO MY TOTALLY RADICAL HOMEPAGE!
-            </h2>
-                  
-                  <div className="ascii-art mb-4" style={{border: '2px solid #896b4f', padding: '8px', background: '#ecece0', fontSize: '10px'}}>
-{`
+                  <h2 className="font-large text-web-blue rainbow-text" style={{ fontSize: '24px' }}>
+                    <WordArt style="fire" probability={1.0}>WELCOME TO MY TOTALLY RADICAL HOMEPAGE!</WordArt>
+                  </h2>
+
+                  <div className="ascii-art mb-4" style={{ border: '2px solid #896b4f', padding: '8px', background: '#ecece0', fontSize: '10px' }}>
+                    {`
 +==========================================+
 |            NETSTALGIA BBS v1.0           |
 |         The Coolest Site on the Web!     |
@@ -620,14 +693,33 @@ export default function Home() {
 +==========================================+
 `}
                   </div>
-            
-            <DancingBaby onTripleClick={handleEasterEgg} />
-            
+
+                  <div
+                    onClick={() => {
+                      // Increment dancing baby click counter
+                      const event = new CustomEvent('incrementClickCounter', {
+                        detail: { target: 'Dancing Baby' }
+                      })
+                      window.dispatchEvent(event)
+                    }}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: '100%',
+                      overflow: 'hidden',
+                      padding: '10px',
+                      margin: '16px 0'
+                    }}
+                  >
+                    <DancingBaby onTripleClick={handleEasterEgg} />
+                  </div>
+
                   <div style={{
-                    border: '4px outset #cdc7bb', 
-                    padding: '12px', 
-                    margin: '16px auto', 
-                    maxWidth: '500px', 
+                    border: '4px outset #cdc7bb',
+                    padding: '12px',
+                    margin: '16px auto',
+                    maxWidth: '500px',
                     background: '#ecece0',
                     boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2)',
                     position: 'relative',
@@ -654,33 +746,33 @@ export default function Home() {
                       border: '1px solid #896b4f',
                       transform: 'rotate(45deg)'
                     }}></div>
-                    <p className="font-normal mb-4" style={{textAlign: 'left', fontSize: '13px'}}>
-                      <span className="rainbow-text font-large" style={{fontSize: '16px'}}>WELCOME FELLOW NETIZENS!</span><br/><br/>
-                      
-                      This is the <span className="text-web-red">COOLEST</span> site on the 
-                      <span className="text-web-blue">WORLD WIDE WEB!</span> Check out my famous 
-                      <span className="text-web-magenta">DANCING BABY</span> above! 
-                      This page is hand-coded in <span className="text-web-green">HTML 3.2</span> and best viewed with 
+                    <p className="font-normal mb-4" style={{ textAlign: 'left', fontSize: '13px' }}>
+                      <span className="rainbow-text font-large" style={{ fontSize: '16px' }}>WELCOME FELLOW NETIZENS!</span><br /><br />
+
+                      This is the <span className="text-web-red">COOLEST</span> site on the
+                      <span className="text-web-blue">WORLD WIDE WEB!</span> Check out my famous
+                      <span className="text-web-magenta">DANCING BABY</span> above!
+                      This page is hand-coded in <span className="text-web-green">HTML 3.2</span> and best viewed with
                       <span className="text-web-green">Netscape Navigator 3.0</span> or higher.
-                      <br/><br/>
-                      
-                      <span className="rainbow-text font-large" style={{fontSize: '16px'}}>NEW!</span> Sign my guestbook and visit again soon! 
+                      <br /><br />
+
+                      <span className="rainbow-text font-large" style={{ fontSize: '16px' }}>NEW!</span> Sign my guestbook and visit again soon!
                       Don't forget to bookmark this page and tell ALL your friends on ICQ!
-                      <br/><br/>
-                      
-                      <span className="blink" style={{fontSize: '13px'}}>Last updated: Never!</span><br/>
-                      <span className="text-web-red" style={{fontSize: '13px'}}>* Y2K COMPLIANT! NO MILLENNIUM BUG HERE! *</span>
+                      <br /><br />
+
+                      <span className="blink" style={{ fontSize: '13px' }}>Last updated: Never!</span><br />
+                      <span className="text-web-red" style={{ fontSize: '13px' }}>* Y2K COMPLIANT! NO MILLENNIUM BUG HERE! *</span>
                     </p>
                   </div>
-                  
+
                   <div className="retro-border-inset mt-4" style={{
                     background: '#ecece0',
                     border: '3px inset #cdc7bb',
                     boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.2)',
                     backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'><rect width=\'40\' height=\'40\' fill=\'%23ecece0\'/><circle cx=\'20\' cy=\'20\' r=\'2\' fill=\'%23cdc7bb\' opacity=\'0.2\'/></svg>")'
                   }}>
-                    <h3 className="font-normal text-web-red center" style={{fontSize: '13px'}}>* SYSTEM REQUIREMENTS *</h3>
-                    <ul style={{textAlign: 'left', fontSize: '12px'}}>
+                    <h3 className="font-normal text-web-red center" style={{ fontSize: '13px' }}>* SYSTEM REQUIREMENTS *</h3>
+                    <ul style={{ textAlign: 'left', fontSize: '12px' }}>
                       <li>Netscape Navigator 3.0+ or Internet Explorer 3.0+ (IE SUCKS!)</li>
                       <li>800x600 screen resolution (1024x768 for rich kids)</li>
                       <li>56K modem or faster (T1 line = CHEATING!)</li>
@@ -691,21 +783,21 @@ export default function Home() {
                     </ul>
                   </div>
 
-                  <div className="mt-4" style={{border: '3px solid #896b4f', padding: '8px', background: '#ecece0'}}>
+                  <div className="mt-4" style={{ border: '3px solid #896b4f', padding: '8px', background: '#ecece0' }}>
                     <div className="center">
-                      <div className="rainbow-text font-large" style={{fontSize: '16px'}}>
+                      <div className="rainbow-text font-large" style={{ fontSize: '16px' }}>
                         * WHAT'S NEW! *
                       </div>
-                      <div className="font-small text-web-red" style={{fontSize: '11px'}}>
-                        • Added auto-playing MIDI background music!<br/>
-                        • New popup ads every 30 seconds!<br/>
-                        • Counter now tracks REAL visitors!<br/>
-                        • Guestbook with NO SPAM PROTECTION!<br/>
-                        • Dancing baby with SECRET EASTER EGG!<br/>
-                        • 100% JAVA-FREE (JavaScript is for n00bs!)<br/>
-                        • Y2K COMPLIANT (guaranteed!)<br/>
-                        • Netscape Navigator optimized!<br/>
-                        • 800x600 resolution recommended!<br/>
+                      <div className="font-small text-web-red" style={{ fontSize: '11px' }}>
+                        • Added auto-playing MIDI background music!<br />
+                        • New popup ads every 30 seconds!<br />
+                        • Counter now tracks REAL visitors!<br />
+                        • Guestbook with NO SPAM PROTECTION!<br />
+                        • Dancing baby with SECRET EASTER EGG!<br />
+                        • 100% JAVA-FREE (JavaScript is for n00bs!)<br />
+                        • Y2K COMPLIANT (guaranteed!)<br />
+                        • Netscape Navigator optimized!<br />
+                        • 800x600 resolution recommended!<br />
                         • 56K modem friendly!
                       </div>
                     </div>
@@ -714,11 +806,13 @@ export default function Home() {
 
 
                   {/* New 90s Content Section */}
-                  <div className="mt-4" style={{border: '3px outset #cdc7bb', padding: '12px', background: '#ecece0'}}>
-                    <h3 className="font-normal text-web-purple center" style={{fontSize: '13px'}}>* COOL STUFF FROM THE 90s! *</h3>
-                    <div style={{fontSize: '12px', textAlign: 'left'}}>
+                  <div className="mt-4" style={{ border: '3px outset #cdc7bb', padding: '12px', background: '#ecece0' }}>
+                    <h3 className="font-normal text-web-purple center" style={{ fontSize: '18px' }}>
+                      <WordArt style="neon" probability={1.0}>* COOL STUFF FROM THE 90s! *</WordArt>
+                    </h3>
+                    <div style={{ fontSize: '12px', textAlign: 'left' }}>
                       <p><strong>Remember these awesome things?</strong></p>
-                      <ul style={{marginLeft: '20px'}}>
+                      <ul style={{ marginLeft: '20px' }}>
                         <li>Tamagotchi virtual pets</li>
                         <li>Beanie Babies collecting craze</li>
                         <li>Pokemon Red & Blue (Game Boy)</li>
@@ -730,8 +824,8 @@ export default function Home() {
                         <li>MTV's Total Request Live</li>
                         <li>Friends TV show finale</li>
                       </ul>
-                      <p style={{marginTop: '8px'}}><strong>Tech that was totally rad:</strong></p>
-                      <ul style={{marginLeft: '20px'}}>
+                      <p style={{ marginTop: '8px' }}><strong>Tech that was totally rad:</strong></p>
+                      <ul style={{ marginLeft: '20px' }}>
                         <li>Pentium processors</li>
                         <li>3.5" floppy disks</li>
                         <li>VHS tapes and VCRs</li>
@@ -746,58 +840,60 @@ export default function Home() {
             )}
 
             {currentPage === 'downloads' && (
-              <div className="retro-border" style={{background: '#ecece0'}}>
+              <div className="retro-border" style={{ background: '#ecece0' }}>
                 <div className="center">
-                  <h2 className="font-large text-web-blue rainbow-text" style={{fontSize: '18px'}}>
+                  <h2 className="font-large text-web-blue rainbow-text" style={{ fontSize: '18px' }}>
                     * DOWNLOADS SECTION *
                   </h2>
-                  
-                  <div style={{border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0'}}>
-                    <h3 style={{fontSize: '16px', color: '#000080', marginBottom: '12px'}}>BBS FILE AREA - FREE SOFTWARE!</h3>
-                    <p style={{fontSize: '13px', marginBottom: '16px', textAlign: 'left'}}>
-                      Welcome to the NETSTALGIA BBS file area! Here you'll find the best FREE software from the 90s. 
+
+                  <div style={{ border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0' }}>
+                    <h3 style={{ fontSize: '22px', color: '#000080', marginBottom: '12px' }}>
+                      <WordArt style="street" probability={1.0}>BBS FILE AREA - FREE SOFTWARE!</WordArt>
+                    </h3>
+                    <p style={{ fontSize: '15px', marginBottom: '16px', textAlign: 'left' }}>
+                      Welcome to the <WordArtAccent>NETSTALGIA BBS</WordArtAccent> file area! Here you'll find the best FREE software from the 90s.
                       All files are virus-free and tested on Windows 95/98. Files are organized by area numbers for easy browsing.
                       Remember to scan with your antivirus and be patient on 56K connections!
                     </p>
-                    
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px'}}>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎵 AREA 3 - MUSIC & MEDIA</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
-                          <li><b>WINAMP.EXE v2.95</b> - <span style={{color: '#008000'}}>1.2MB - MP3s supported!</span></li>
-                          <li><b>REALPLAYER.EXE</b> - <span style={{color: '#ff00ff'}}>2.5MB - Streaming!</span></li>
-                          <li><b>NAPSTER.EXE v2.0</b> - <span style={{color: '#ff0000'}}>800KB - Peer-to-peer!</span></li>
-                          <li><b>QUICKTIME.EXE v3.0</b> - <span style={{color: '#ff6600'}}>1.8MB - Apple media!</span></li>
-                          <li><b>SHOCKWAVE.EXE</b> - <span style={{color: '#ff00ff'}}>1.5MB - Macromedia!</span></li>
+                        <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>🎵 AREA 3 - MUSIC & MEDIA</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
+                          <li><b>WINAMP.EXE v2.95</b> - <span style={{ color: '#008000' }}>1.2MB - MP3s supported!</span></li>
+                          <li><b>REALPLAYER.EXE</b> - <span style={{ color: '#ff00ff' }}>2.5MB - Streaming!</span></li>
+                          <li><b>NAPSTER.EXE v2.0</b> - <span style={{ color: '#ff0000' }}>800KB - Peer-to-peer!</span></li>
+                          <li><b>QUICKTIME.EXE v3.0</b> - <span style={{ color: '#ff6600' }}>1.8MB - Apple media!</span></li>
+                          <li><b>SHOCKWAVE.EXE</b> - <span style={{ color: '#ff00ff' }}>1.5MB - Macromedia!</span></li>
                         </ul>
                       </div>
-                      
+
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#0000ff', marginBottom: '8px'}}>🌐 AREA 2 - INTERNET & BROWSERS</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
-                          <li><b>MOZILLA.EXE v1.0</b> - <span style={{color: '#0000ff'}}>2.1MB - Open source!</span></li>
-                          <li><b>ICQ.EXE v99a</b> - <span style={{color: '#00ff00'}}>1.8MB - Instant messaging!</span></li>
-                          <li><b>JAVA.EXE</b> - <span style={{color: '#008000'}}>3.2MB - Sun Microsystems!</span></li>
-                          <li><b>ACROBAT.EXE</b> - <span style={{color: '#0000ff'}}>2.5MB - PDF files!</span></li>
-                          <li><b>NETSCAPE.EXE v4.7</b> - <span style={{color: '#000080'}}>4.1MB - Navigator!</span></li>
+                        <h4 style={{ fontSize: '14px', color: '#0000ff', marginBottom: '8px' }}>🌐 AREA 2 - INTERNET & BROWSERS</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
+                          <li><b>MOZILLA.EXE v1.0</b> - <span style={{ color: '#0000ff' }}>2.1MB - Open source!</span></li>
+                          <li><b>ICQ.EXE v99a</b> - <span style={{ color: '#00ff00' }}>1.8MB - Instant messaging!</span></li>
+                          <li><b>JAVA.EXE</b> - <span style={{ color: '#008000' }}>3.2MB - Sun Microsystems!</span></li>
+                          <li><b>ACROBAT.EXE</b> - <span style={{ color: '#0000ff' }}>2.5MB - PDF files!</span></li>
+                          <li><b>NETSCAPE.EXE v4.7</b> - <span style={{ color: '#000080' }}>4.1MB - Navigator!</span></li>
                         </ul>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎮 AREA 1 - GAMES & ENTERTAINMENT</h4>
-                      <ul style={{fontSize: '12px', textAlign: 'left'}}>
-                        <li><b>DOOM.EXE v1.9</b> - <span style={{color: '#0000ff'}}>2.3MB - Shareware!</span></li>
-                        <li><b>WOLF3D.EXE</b> - <span style={{color: '#ff6600'}}>1.8MB - Classic!</span></li>
-                        <li><b>KEEN.EXE</b> - <span style={{color: '#ff0000'}}>500KB - Commander Keen!</span></li>
-                        <li><b>TETRIS.EXE</b> - <span style={{color: '#008000'}}>200KB - Classic!</span></li>
-                        <li><b>PINBALL.EXE</b> - <span style={{color: '#0000ff'}}>1.5MB - 3D Space Cadet!</span></li>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>🎮 AREA 1 - GAMES & ENTERTAINMENT</h4>
+                      <ul style={{ fontSize: '12px', textAlign: 'left' }}>
+                        <li><b>DOOM.EXE v1.9</b> - <span style={{ color: '#0000ff' }}>2.3MB - Shareware!</span></li>
+                        <li><b>WOLF3D.EXE</b> - <span style={{ color: '#ff6600' }}>1.8MB - Classic!</span></li>
+                        <li><b>KEEN.EXE</b> - <span style={{ color: '#ff0000' }}>500KB - Commander Keen!</span></li>
+                        <li><b>TETRIS.EXE</b> - <span style={{ color: '#008000' }}>200KB - Classic!</span></li>
+                        <li><b>PINBALL.EXE</b> - <span style={{ color: '#0000ff' }}>1.5MB - 3D Space Cadet!</span></li>
                       </ul>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#008000', marginBottom: '8px'}}>📊 BBS FILE STATISTICS</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#008000', marginBottom: '8px' }}>📊 BBS FILE STATISTICS</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• Total Files: 1,247</div>
                         <div>• Total Downloads: 1,247,892</div>
                         <div>• Most Popular: WINAMP.EXE (342,156 downloads)</div>
@@ -807,10 +903,10 @@ export default function Home() {
                         <div>• Average Download Time: 5-10 minutes (56K)</div>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>⚠️ BBS DOWNLOAD NOTICE</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>⚠️ BBS DOWNLOAD NOTICE</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• All files are FREE and virus-free!</div>
                         <div>• Tested on Windows 95/98/ME</div>
                         <div>• Requires 16MB RAM minimum</div>
@@ -821,30 +917,37 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  
-                  <UnderConstruction text="More downloads coming soon!" />
+
+                  <UnderConstruction
+                    text="DOWNLOAD SERVER OFFLINE"
+                    variant="section"
+                    showWorker={true}
+                    showExcuse={true}
+                  />
                 </div>
               </div>
             )}
 
             {currentPage === 'webtoys' && (
-              <div className="retro-border" style={{background: '#ecece0'}}>
+              <div className="retro-border" style={{ background: '#ecece0' }}>
                 <div className="center">
-                  <h2 className="font-large text-web-purple rainbow-text" style={{fontSize: '18px'}}>
+                  <h2 className="font-large text-web-purple rainbow-text" style={{ fontSize: '18px' }}>
                     * WEB TOYS SECTION *
                   </h2>
-                  
-                  <div style={{border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0'}}>
-                    <h3 style={{fontSize: '16px', color: '#000080', marginBottom: '12px'}}>INTERACTIVE WEB TOYS!</h3>
-                    <p style={{fontSize: '13px', marginBottom: '16px', textAlign: 'left'}}>
-                      Welcome to the Web Toys section! Here you'll find all the cool interactive features that make this site awesome. 
+
+                  <div style={{ border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0' }}>
+                    <h3 style={{ fontSize: '22px', color: '#000080', marginBottom: '12px' }}>
+                      <WordArt style="playful" probability={1.0}>INTERACTIVE WEB TOYS!</WordArt>
+                    </h3>
+                    <p style={{ fontSize: '15px', marginBottom: '16px', textAlign: 'left' }}>
+                      Welcome to the <WordArtAccent>Web Toys</WordArtAccent> section! Here you'll find all the cool interactive features that make this site awesome.
                       Click around and discover all the hidden secrets and easter eggs!
                     </p>
-                    
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px'}}>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎮 GAMES & INTERACTIONS</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
+                        <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>🎮 GAMES & INTERACTIONS</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                           <li><b>Snake Game</b> - Classic Nokia-style game!</li>
                           <li><b>Virtual Pet Tamagotchi</b> - Feed and care for your digital pet!</li>
                           <li><b>Konami Code Detector</b> - Try ↑↑↓↓←→←→BA!</li>
@@ -852,10 +955,10 @@ export default function Home() {
                           <li><b>Starfield Animation</b> - Secret keyboard trigger!</li>
                         </ul>
                       </div>
-                      
+
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#0000ff', marginBottom: '8px'}}>✨ VISUAL EFFECTS</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
+                        <h4 style={{ fontSize: '14px', color: '#0000ff', marginBottom: '8px' }}>✨ VISUAL EFFECTS</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                           <li><b>Cursor Trail Effects</b> - Rainbow sparkles follow your mouse!</li>
                           <li><b>Matrix Effect</b> - Full-screen Matrix-style animation!</li>
                           <li><b>Rainbow Text</b> - Animated rainbow colors!</li>
@@ -864,20 +967,27 @@ export default function Home() {
                         </ul>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff6600', marginBottom: '8px'}}>🎵 AUDIO & MUSIC</h4>
-                      <ul style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <UnderConstruction
+                      text="CHAT ROOM COMING SOON"
+                      variant="banner"
+                      showWorker={true}
+                      showExcuse={false}
+                    />
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff6600', marginBottom: '8px' }}>🎵 AUDIO & MUSIC</h4>
+                      <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                         <li><b>MIDI Music Player</b> - Listen to HAMSTERDANCE.MID!</li>
                         <li><b>Dial-up Sound Simulator</b> - Hear the connection!</li>
                         <li><b>Background Music</b> - Auto-playing 90s tunes!</li>
                         <li><b>Sound Effects</b> - Various retro audio clips!</li>
                       </ul>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#008000', marginBottom: '8px'}}>📝 INTERACTIVE FEATURES</h4>
-                      <ul style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#008000', marginBottom: '8px' }}>📝 INTERACTIVE FEATURES</h4>
+                      <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                         <li><b>Guestbook</b> - Leave funny messages!</li>
                         <li><b>Visitor Counter</b> - Watch numbers increment!</li>
                         <li><b>Dancing Baby GIF</b> - Triple-click for secrets!</li>
@@ -886,10 +996,10 @@ export default function Home() {
                         <li><b>90s Trivia Quiz</b> - Test your knowledge!</li>
                       </ul>
                     </div>
-                    
-                    <div style={{border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎯 HOW TO TRIGGER EASTER EGGS</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>🎯 HOW TO TRIGGER EASTER EGGS</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• Click any banner ad at the bottom of the page</div>
                         <div>• Use the Web Ring navigation buttons</div>
                         <div>• Click "Join the Ring" for Matrix effect</div>
@@ -899,10 +1009,10 @@ export default function Home() {
                         <div>• Click everything to find more secrets!</div>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#e0f0ff', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#0000ff', marginBottom: '8px'}}>📊 WEB TOYS STATISTICS</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#e0f0ff', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#0000ff', marginBottom: '8px' }}>📊 WEB TOYS STATISTICS</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• Total Easter Eggs Found: 15+</div>
                         <div>• Most Popular: Snake Game (2,847 plays)</div>
                         <div>• Cursor Trail Activations: 1,234</div>
@@ -912,30 +1022,30 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <UnderConstruction text="More web toys coming soon!" />
                 </div>
               </div>
             )}
 
             {currentPage === 'about' && (
-              <div className="retro-border" style={{background: '#ecece0'}}>
+              <div className="retro-border" style={{ background: '#ecece0' }}>
                 <div className="center">
-                  <h2 className="font-large text-web-green rainbow-text" style={{fontSize: '18px'}}>
+                  <h2 className="font-large text-web-green rainbow-text" style={{ fontSize: '18px' }}>
                     * ABOUT THIS SITE *
                   </h2>
-                  
-                  <div style={{border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0'}}>
-                    <h3 style={{fontSize: '16px', color: '#000080', marginBottom: '12px'}}>WELCOME TO NETSTALGIA!</h3>
-                    <p style={{fontSize: '13px', textAlign: 'left', lineHeight: '1.4'}}>
-                      Welcome to Netstalgia! This site is a tribute to the wild, weird, and wonderful web of the 1990s. 
+
+                  <div style={{ border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0' }}>
+                    <h3 style={{ fontSize: '16px', color: '#000080', marginBottom: '12px' }}>WELCOME TO NETSTALGIA!</h3>
+                    <p style={{ fontSize: '13px', textAlign: 'left', lineHeight: '1.4' }}>
+                      Welcome to Netstalgia! This site is a tribute to the wild, weird, and wonderful web of the 1990s.
                       Hand-coded in HTML 3.2, best viewed in Netscape Navigator, and packed with authentic retro features.
                     </p>
-                    
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px'}}>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎮 INTERACTIVE FEATURES</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
+                        <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>🎮 INTERACTIVE FEATURES</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                           <li>Auto-playing MIDI background music</li>
                           <li>Popup advertisements (authentic 90s experience!)</li>
                           <li>Guestbook with local storage</li>
@@ -946,10 +1056,10 @@ export default function Home() {
                           <li>Matrix and starfield animations</li>
                         </ul>
                       </div>
-                      
+
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#0000ff', marginBottom: '8px'}}>🎨 VISUAL ELEMENTS</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
+                        <h4 style={{ fontSize: '14px', color: '#0000ff', marginBottom: '8px' }}>🎨 VISUAL ELEMENTS</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                           <li>Under construction banners</li>
                           <li>Marquee text animations</li>
                           <li>Secret keyboard shortcuts</li>
@@ -961,10 +1071,10 @@ export default function Home() {
                         </ul>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff6600', marginBottom: '8px'}}>⚙️ TECHNICAL DETAILS</h4>
-                      <ul style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff6600', marginBottom: '8px' }}>⚙️ TECHNICAL DETAILS</h4>
+                      <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                         <li>Built with Next.js 14 and React</li>
                         <li>TypeScript for type safety</li>
                         <li>Tailwind CSS for styling</li>
@@ -975,10 +1085,10 @@ export default function Home() {
                         <li>Cross-browser compatibility</li>
                       </ul>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#008000', marginBottom: '8px'}}>📊 SITE STATISTICS</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#008000', marginBottom: '8px' }}>📊 SITE STATISTICS</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• Site Created: December 1999</div>
                         <div>• Last Updated: Never!</div>
                         <div>• Total Visitors: 1,247,892</div>
@@ -989,10 +1099,10 @@ export default function Home() {
                         <div>• Y2K Compliance: 100%</div>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>🎯 SITE MISSION</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>🎯 SITE MISSION</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>This site exists to preserve the authentic experience of browsing the web in the late 1990s.</div>
                         <div>We believe in:</div>
                         <div>• Authentic 90s web design</div>
@@ -1004,30 +1114,30 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <UnderConstruction text="This page is always under construction!" />
                 </div>
               </div>
             )}
 
             {currentPage === 'guestbook' && (
-              <div className="retro-border" style={{background: '#ecece0'}}>
+              <div className="retro-border" style={{ background: '#ecece0' }}>
                 <div className="center">
-                  <h2 className="font-large text-web-magenta rainbow-text" style={{fontSize: '18px'}}>
+                  <h2 className="font-large text-web-magenta rainbow-text" style={{ fontSize: '18px' }}>
                     * GUESTBOOK *
                   </h2>
-                  
-                  <div style={{border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0'}}>
-                    <h3 style={{fontSize: '16px', color: '#000080', marginBottom: '12px'}}>SIGN MY GUESTBOOK!</h3>
-                    <p style={{fontSize: '13px', textAlign: 'left', lineHeight: '1.4'}}>
-                      Sign my guestbook and leave a message! This is where all the cool people hang out and share their thoughts about my awesome website. 
+
+                  <div style={{ border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '600px', background: '#ecece0' }}>
+                    <h3 style={{ fontSize: '16px', color: '#000080', marginBottom: '12px' }}>SIGN MY GUESTBOOK!</h3>
+                    <p style={{ fontSize: '13px', textAlign: 'left', lineHeight: '1.4' }}>
+                      Sign my guestbook and leave a message! This is where all the cool people hang out and share their thoughts about my awesome website.
                       Don't forget to tell your friends about this totally radical site!
                     </p>
-                    
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px'}}>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>📝 GUESTBOOK FEATURES</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
+                        <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>📝 GUESTBOOK FEATURES</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                           <li>Leave your name and message</li>
                           <li>Messages saved locally</li>
                           <li>No spam protection (authentic 90s!)</li>
@@ -1037,10 +1147,10 @@ export default function Home() {
                           <li>Emoticon support :-)</li>
                         </ul>
                       </div>
-                      
+
                       <div>
-                        <h4 style={{fontSize: '14px', color: '#0000ff', marginBottom: '8px'}}>🎯 GUESTBOOK RULES</h4>
-                        <ul style={{fontSize: '12px', textAlign: 'left'}}>
+                        <h4 style={{ fontSize: '14px', color: '#0000ff', marginBottom: '8px' }}>🎯 GUESTBOOK RULES</h4>
+                        <ul style={{ fontSize: '12px', textAlign: 'left' }}>
                           <li>Be nice to other visitors</li>
                           <li>No spam or advertising</li>
                           <li>Keep messages family-friendly</li>
@@ -1051,10 +1161,10 @@ export default function Home() {
                         </ul>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff6600', marginBottom: '8px'}}>📊 GUESTBOOK STATISTICS</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ffff00', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff6600', marginBottom: '8px' }}>📊 GUESTBOOK STATISTICS</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• Total Entries: 892</div>
                         <div>• Most Active Day: Friday</div>
                         <div>• Average Rating: 9.5/10 stars</div>
@@ -1064,10 +1174,10 @@ export default function Home() {
                         <div>• Emoticon Usage: 73% of messages</div>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#008000', marginBottom: '8px'}}>💡 MESSAGE IDEAS</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #896b4f', padding: '8px', background: '#ecece0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#008000', marginBottom: '8px' }}>💡 MESSAGE IDEAS</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• "Cool site! :-)"</div>
                         <div>• "This reminds me of the 90s!"</div>
                         <div>• "I love the dancing baby!"</div>
@@ -1078,10 +1188,10 @@ export default function Home() {
                         <div>• "I'll tell all my friends about this!"</div>
                       </div>
                     </div>
-                    
-                    <div style={{border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px'}}>
-                      <h4 style={{fontSize: '14px', color: '#ff0000', marginBottom: '8px'}}>⚠️ IMPORTANT NOTICE</h4>
-                      <div style={{fontSize: '12px', textAlign: 'left'}}>
+
+                    <div style={{ border: '2px solid #ff0000', padding: '8px', background: '#ffe0e0', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>⚠️ IMPORTANT NOTICE</h4>
+                      <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• Messages are saved in your browser (localStorage)</div>
                         <div>• Messages will be lost if you clear your browser data</div>
                         <div>• No server-side storage (authentic 90s!)</div>
@@ -1096,18 +1206,18 @@ export default function Home() {
             )}
 
             {/* Web Ring Navigation - Always Visible */}
-            <div className="webring mt-4" style={{background: '#ecece0'}}>
-              <div className="rainbow-text font-large" style={{fontSize: '14px'}}>
+            <div className="webring mt-4" style={{ background: '#ecece0' }}>
+              <div className="rainbow-text font-large" style={{ fontSize: '14px' }}>
                 * 90s WEB RING EXTRAVAGANZA! *
               </div>
-              <div style={{fontSize: '10px'}}>
-                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">&lt;&lt; PREVIOUS AWESOME SITE</a> | 
-                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank"> RANDOM COOL PAGE </a> | 
+              <div style={{ fontSize: '10px' }}>
+                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">&lt;&lt; PREVIOUS AWESOME SITE</a> |
+                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank"> RANDOM COOL PAGE </a> |
                 <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">NEXT RADICAL SITE &gt;&gt;</a>
               </div>
-              <div className="font-small text-web-purple mt-1" style={{fontSize: '9px'}}>
-                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">JOIN ALL 47 WEB RINGS!</a> | 
-                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">SUBMIT YOUR SITE!</a> | 
+              <div className="font-small text-web-purple mt-1" style={{ fontSize: '9px' }}>
+                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">JOIN ALL 47 WEB RINGS!</a> |
+                <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">SUBMIT YOUR SITE!</a> |
                 <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">RING MASTER INFO!</a>
               </div>
             </div>
@@ -1115,41 +1225,41 @@ export default function Home() {
 
           {/* Right Sidebar - Always Visible */}
           <td width="250" valign="top">
-            <div className="retro-border" style={{background: '#ecece0'}}>
+            <div className="retro-border" style={{ background: '#ecece0' }}>
               <Guestbook />
             </div>
 
-            <div className="retro-border mt-4" style={{background: '#ecece0'}}>
-              <h3 className="font-normal text-web-purple center" style={{fontSize: '11px'}}>* NOW PLAYING *</h3>
+            <div className="retro-border mt-4" style={{ background: '#ecece0' }}>
+              <h3 className="font-normal text-web-purple center" style={{ fontSize: '11px' }}>* NOW PLAYING *</h3>
               <div className="center font-small">
-                <div className="blink" style={{fontSize: '9px'}}>* HAMSTERDANCE.MID *</div>
-                <div style={{fontSize: '9px'}}>128 KBPS CD QUALITY!</div>
-                <div style={{fontSize: '9px'}}>DOWNLOADED FROM NAPSTER!</div>
-                <div className="text-web-red" style={{fontSize: '9px'}}>RIAA CAN'T STOP US!</div>
-                <div style={{fontSize: '9px'}}>BITRATE: 128 KBPS</div>
-                <div style={{fontSize: '9px'}}>FORMAT: MP3 (ILLEGAL!)</div>
-                <div style={{fontSize: '9px'}}>SIZE: 2.3 MB</div>
-                <div style={{fontSize: '9px'}}>PLAYTIME: 3:45</div>
+                <div className="blink" style={{ fontSize: '9px' }}>* HAMSTERDANCE.MID *</div>
+                <div style={{ fontSize: '9px' }}>128 KBPS CD QUALITY!</div>
+                <div style={{ fontSize: '9px' }}>DOWNLOADED FROM NAPSTER!</div>
+                <div className="text-web-red" style={{ fontSize: '9px' }}>RIAA CAN'T STOP US!</div>
+                <div style={{ fontSize: '9px' }}>BITRATE: 128 KBPS</div>
+                <div style={{ fontSize: '9px' }}>FORMAT: MP3 (ILLEGAL!)</div>
+                <div style={{ fontSize: '9px' }}>SIZE: 2.3 MB</div>
+                <div style={{ fontSize: '9px' }}>PLAYTIME: 3:45</div>
               </div>
             </div>
 
-            <div className="retro-border mt-4" style={{background: '#ecece0', border: '3px solid #896b4f'}}>
-              <h3 className="font-normal center text-web-magenta" style={{fontSize: '11px'}}>* FREE DOWNLOADS! *</h3>
+            <div className="retro-border mt-4" style={{ background: '#ecece0', border: '3px solid #896b4f' }}>
+              <h3 className="font-normal center text-web-magenta" style={{ fontSize: '11px' }}>* FREE DOWNLOADS! *</h3>
               <div className="center font-small">
-                <div className="text-web-blue" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.bonzi.com/" target="_blank">* Bonzi Buddy v3.0! *</a></div>
-                <div className="text-web-red" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.microsoft.com/games/" target="_blank">* 3D Pinball Space Cadet! *</a></div>
-                <div className="text-web-green" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.berkeley.com/" target="_blank">* Flying Toasters Screensaver! *</a></div>
-                <div className="text-web-purple" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.winamp.com/" target="_blank">* WinAmp v2.95 Full! *</a></div>
-                <div className="text-web-cyan" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.real.com/" target="_blank">* Real Player GOLD! *</a></div>
-                <div className="text-web-yellow" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.napster.com/" target="_blank">* Napster 2.0! *</a></div>
-                <div className="text-web-magenta" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.icq.com/" target="_blank">* ICQ 99a! *</a></div>
-                <div className="text-web-orange" style={{fontSize: '9px'}}><a href="https://web.archive.org/web/19961219120000/http://www.mozilla.org/" target="_blank">* Mozilla 1.0! *</a></div>
+                <div className="text-web-blue" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.bonzi.com/" target="_blank">* Bonzi Buddy v3.0! *</a></div>
+                <div className="text-web-red" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.microsoft.com/games/" target="_blank">* 3D Pinball Space Cadet! *</a></div>
+                <div className="text-web-green" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.berkeley.com/" target="_blank">* Flying Toasters Screensaver! *</a></div>
+                <div className="text-web-purple" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.winamp.com/" target="_blank">* WinAmp v2.95 Full! *</a></div>
+                <div className="text-web-cyan" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.real.com/" target="_blank">* Real Player GOLD! *</a></div>
+                <div className="text-web-yellow" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.napster.com/" target="_blank">* Napster 2.0! *</a></div>
+                <div className="text-web-magenta" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.icq.com/" target="_blank">* ICQ 99a! *</a></div>
+                <div className="text-web-orange" style={{ fontSize: '9px' }}><a href="https://web.archive.org/web/19961219120000/http://www.mozilla.org/" target="_blank">* Mozilla 1.0! *</a></div>
               </div>
             </div>
 
             {/* Easter Egg/Secret Instructions Section */}
-            <div className="retro-border mt-4" style={{background: '#ecece0'}}>
-              <h3 className="font-normal text-web-purple center" style={{fontSize: '11px'}}>* SECRET EASTER EGGS! *</h3>
+            <div className="retro-border mt-4" style={{ background: '#ecece0' }}>
+              <h3 className="font-normal text-web-purple center" style={{ fontSize: '11px' }}>* SECRET EASTER EGGS! *</h3>
               <div style={{
                 border: '2px inset #cdc7bb',
                 padding: '8px',
@@ -1159,69 +1269,69 @@ export default function Home() {
                 textAlign: 'center',
                 color: '#000080'
               }}>
-                <strong>SECRET EASTER EGGS:</strong><br/>
-                • Triple-click the dancing baby!<br/>
-                • Try the Konami Code: ↑↑↓↓←→←→BA<br/>
-                • Type "KONAMI" or "CONTRA" or "NINTENDO"<br/>
-                • Click everything to find more secrets!<br/>
+                <strong>SECRET EASTER EGGS:</strong><br />
+                • Triple-click the dancing baby!<br />
+                • Try the Konami Code: ↑↑↓↓←→←→BA<br />
+                • Type "KONAMI" or "CONTRA" or "NINTENDO"<br />
+                • Click everything to find more secrets!<br />
                 • Easter eggs found: {easterEggCount}
+              </div>
             </div>
-          </div>
 
             {/* New 90s Image Gallery */}
-            <div className="retro-border mt-4" style={{background: '#ecece0'}}>
-              <h3 className="font-normal center text-web-green" style={{fontSize: '11px'}}>* COOL 90s STUFF! *</h3>
+            <div className="retro-border mt-4" style={{ background: '#ecece0' }}>
+              <h3 className="font-normal center text-web-green" style={{ fontSize: '11px' }}>* COOL 90s STUFF! *</h3>
               <div className="center">
                 <div className="vintage-image">
-                  <img 
-                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%23ff00ff'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>TAMAGOTCHI</text></svg>" 
-                    alt="Tamagotchi" 
-                    style={{width: '80px', height: '60px'}}
+                  <img
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%23ff00ff'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>TAMAGOTCHI</text></svg>"
+                    alt="Tamagotchi"
+                    style={{ width: '80px', height: '60px' }}
                   />
                 </div>
                 <div className="vintage-image">
-                  <img 
-                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%2300ffff'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>GAME BOY</text></svg>" 
-                    alt="Game Boy" 
-                    style={{width: '80px', height: '60px'}}
+                  <img
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%2300ffff'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>GAME BOY</text></svg>"
+                    alt="Game Boy"
+                    style={{ width: '80px', height: '60px' }}
                   />
                 </div>
                 <div className="vintage-image">
-                  <img 
-                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%23ffff00'/><text x='40' y='35' text-anchor='middle' fill='black' font-size='8' font-family='Arial'>FLOPPY</text></svg>" 
-                    alt="Floppy Disk" 
-                    style={{width: '80px', height: '60px'}}
+                  <img
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%23ffff00'/><text x='40' y='35' text-anchor='middle' fill='black' font-size='8' font-family='Arial'>FLOPPY</text></svg>"
+                    alt="Floppy Disk"
+                    style={{ width: '80px', height: '60px' }}
                   />
                 </div>
                 <div className="vintage-image">
-                  <img 
-                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%23ff0000'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>POKEMON</text></svg>" 
-                    alt="Pokemon" 
-                    style={{width: '80px', height: '60px'}}
+                  <img
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%23ff0000'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>POKEMON</text></svg>"
+                    alt="Pokemon"
+                    style={{ width: '80px', height: '60px' }}
                   />
                 </div>
                 <div className="vintage-image">
-                  <img 
-                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%2300ff00'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>BEANIE</text></svg>" 
-                    alt="Beanie Babies" 
-                    style={{width: '80px', height: '60px'}}
+                  <img
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%2300ff00'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>BEANIE</text></svg>"
+                    alt="Beanie Babies"
+                    style={{ width: '80px', height: '60px' }}
                   />
                 </div>
                 <div className="vintage-image">
-                  <img 
-                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%230000ff'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>TITANIC</text></svg>" 
-                    alt="Titanic" 
-                    style={{width: '80px', height: '60px'}}
+                  <img
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'><rect width='80' height='60' fill='%230000ff'/><text x='40' y='35' text-anchor='middle' fill='white' font-size='8' font-family='Arial'>TITANIC</text></svg>"
+                    alt="Titanic"
+                    style={{ width: '80px', height: '60px' }}
                   />
                 </div>
               </div>
             </div>
 
             {/* Hidden Easter Egg - Click on images */}
-            <div className="mt-4" style={{border: '2px solid #896b4f', padding: '4px', background: '#ecece0', cursor: 'pointer'}} onClick={() => {
+            <div className="mt-4" style={{ border: '2px solid #896b4f', padding: '4px', background: '#ecece0', cursor: 'pointer' }} onClick={() => {
               alert('🎉 IMAGE EASTER EGG! 🎉\n\nYou clicked on the 90s image gallery!\n\nThese represent:\n• Tamagotchi - Virtual pets (1996)\n• Game Boy - Portable gaming\n• Floppy Disk - 1.44MB storage\n• Pokemon - Red/Blue (1996)\n• Beanie Babies - Collecting craze\n• Titanic - Movie & song (1997)\n\nYou\'re exploring like a true 90s kid! 🌟')
             }}>
-              <div className="center font-small text-web-blue" style={{fontSize: '9px'}}>
+              <div className="center font-small text-web-blue" style={{ fontSize: '9px' }}>
                 * CLICK IMAGES FOR SECRET! *
               </div>
             </div>
@@ -1231,42 +1341,42 @@ export default function Home() {
 
       {/* Bottom Banner Ads */}
       <BannerAds />
-      
+
       {/* BBS Features Section */}
-      <div style={{marginTop: '20px', marginBottom: '20px'}}>
+      <div style={{ marginTop: '20px', marginBottom: '20px' }}>
         <BBSFeatures />
       </div>
-      
+
       {/* Footer - Always Visible */}
       <div className="center mt-4">
-        <hr style={{border: '3px outset #cdc7bb'}} />
-        
-        <div className="font-small" style={{background: '#ecece0', padding: '8px', border: '2px solid #896b4f'}}>
-          <div className="mb-2 rainbow-text font-large" style={{fontSize: '16px'}}>
-            <strong>© 1999 NETSTALGIA BBS - ALL RIGHTS RESERVED</strong>
+        <hr style={{ border: '3px outset #cdc7bb' }} />
+
+        <div className="font-small" style={{ background: '#ecece0', padding: '8px', border: '2px solid #896b4f' }}>
+          <div className="mb-2 rainbow-text font-large" style={{ fontSize: '18px' }}>
+            <strong><WordArt style="metal" probability={1.0}>© 1999 NETSTALGIA BBS - ALL RIGHTS RESERVED</WordArt></strong>
           </div>
-          <div className="text-web-red mb-2 font-normal" style={{fontSize: '13px'}}>
+          <div className="text-web-red mb-2 font-normal" style={{ fontSize: '13px' }}>
             * LAST UPDATED: NEVER! Y2K COMPLIANT FOREVER! *
           </div>
-          <div className="mb-2" style={{fontSize: '12px'}}>
-            HAND-CODED WITH NOTEPAD.EXE & HTML 3.2<br/>
-            PROUDLY HOSTED ON GEOCITIES FREE HOSTING!<br/>
-            THIS SITE IS MOSAIC & LYNX COMPATIBLE!<br/>
+          <div className="mb-2" style={{ fontSize: '12px' }}>
+            HAND-CODED WITH NOTEPAD.EXE & HTML 3.2<br />
+            PROUDLY HOSTED ON GEOCITIES FREE HOSTING!<br />
+            THIS SITE IS MOSAIC & LYNX COMPATIBLE!<br />
             BEST VIEWED ON PENTIUM 133MHz OR FASTER!
           </div>
 
-          <div style={{border: '4px outset #cdc7bb', padding: '8px', display: 'inline-block', background: '#ffff00'}}>
-            <div className="font-normal" style={{fontSize: '13px'}}>
-              <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">&lt;&lt; PREVIOUS COOL SITE</a> | 
-              <strong> RANDOM AWESOME PAGE </strong> | 
+          <div style={{ border: '4px outset #cdc7bb', padding: '8px', display: 'inline-block', background: '#ffff00' }}>
+            <div className="font-normal" style={{ fontSize: '13px' }}>
+              <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">&lt;&lt; PREVIOUS COOL SITE</a> |
+              <strong> RANDOM AWESOME PAGE </strong> |
               <a href="https://web.archive.org/web/19961219120000/http://www.webring.org/" target="_blank">NEXT RADICAL SITE &gt;&gt;</a>
             </div>
-            <div className="font-small" style={{fontSize: '11px'}}>
+            <div className="font-small" style={{ fontSize: '11px' }}>
               [ JOIN THE 90s WEB RING REVOLUTION! ]
             </div>
           </div>
         </div>
-        
+
         <div className="mt-4 font-small text-web-gray" style={{
           border: '2px outset #cdc7bb',
           padding: '8px',
@@ -1274,8 +1384,8 @@ export default function Home() {
           borderRadius: '4px',
           boxShadow: 'inset 1px 1px 2px rgba(255,255,255,0.5), 1px 1px 2px rgba(0,0,0,0.2)'
         }}>
-          <div style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '8px'}}>Best viewed with:</div>
-          <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>Best viewed with:</div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <div style={{
               border: '2px outset #cdc7bb',
               padding: '4px 8px',
@@ -1283,7 +1393,7 @@ export default function Home() {
               borderRadius: '4px',
               cursor: 'pointer'
             }}>
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'><rect width='120' height='20' fill='%23000080'/><text x='60' y='13' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>NETSCAPE NAVIGATOR</text></svg>" alt="Best viewed with Netscape" style={{verticalAlign: 'middle'}} />
+              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'><rect width='120' height='20' fill='%23000080'/><text x='60' y='13' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>NETSCAPE NAVIGATOR</text></svg>" alt="Best viewed with Netscape" style={{ verticalAlign: 'middle' }} />
             </div>
             <div style={{
               border: '2px outset #cdc7bb',
@@ -1292,7 +1402,7 @@ export default function Home() {
               borderRadius: '4px',
               cursor: 'pointer'
             }}>
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'><rect width='120' height='20' fill='%230066cc'/><text x='60' y='13' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>INTERNET EXPLORER</text></svg>" alt="Best viewed with IE" style={{verticalAlign: 'middle'}} />
+              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'><rect width='120' height='20' fill='%230066cc'/><text x='60' y='13' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>INTERNET EXPLORER</text></svg>" alt="Best viewed with IE" style={{ verticalAlign: 'middle' }} />
             </div>
             <div style={{
               border: '2px outset #cdc7bb',
@@ -1301,10 +1411,10 @@ export default function Home() {
               borderRadius: '4px',
               cursor: 'pointer'
             }}>
-              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'><rect width='120' height='20' fill='%23ff6600'/><text x='60' y='13' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>MOZILLA FIREFOX</text></svg>" alt="Best viewed with Firefox" style={{verticalAlign: 'middle'}} />
+              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'><rect width='120' height='20' fill='%23ff6600'/><text x='60' y='13' text-anchor='middle' fill='white' font-size='10' font-family='Arial'>MOZILLA FIREFOX</text></svg>" alt="Best viewed with Firefox" style={{ verticalAlign: 'middle' }} />
             </div>
           </div>
-          <div style={{fontSize: '10px', marginTop: '8px', textAlign: 'center'}}>
+          <div style={{ fontSize: '10px', marginTop: '8px', textAlign: 'center' }}>
             * 800x600 resolution recommended * | * 56K modem friendly * | * Y2K compliant *
           </div>
         </div>

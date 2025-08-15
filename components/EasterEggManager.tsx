@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react'
 import CursorTrail from './CursorTrail'
 import SnakeGame from './SnakeGame'
+import TetrisGame from './TetrisGame'
+import PongGame from './PongGame'
+import MatrixEffect from './MatrixEffect'
+import StarfieldEffect from './StarfieldEffect'
 
 interface EasterEggManagerProps {
   className?: string
@@ -17,7 +21,7 @@ export default function EasterEggManager({ className = '' }: EasterEggManagerPro
       const { type, source } = event.detail
       setActiveEasterEgg(type)
       setEasterEggCount(prev => prev + 1)
-      
+
       // Auto-close some effects after a delay
       if (type === 'cursor-trail' || type === 'starfield-effect' || type === 'rainbow-text' || type === 'matrix-effect') {
         setTimeout(() => {
@@ -38,148 +42,19 @@ export default function EasterEggManager({ className = '' }: EasterEggManagerPro
     switch (activeEasterEgg) {
       case 'cursor-trail':
         return <CursorTrail isActive={true} onClose={closeEasterEgg} />
-      
+
       case 'snake-game':
         return <SnakeGame isActive={true} onClose={closeEasterEgg} />
-      
+
       case 'tetris-game':
-        return (
-          <div style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 10000,
-            background: '#ecece0',
-            border: '4px outset #cdc7bb',
-            padding: '16px',
-            fontFamily: 'MS Sans Serif, Arial, sans-serif'
-          }}>
-            <div style={{
-              background: '#000080',
-              color: '#ffffff',
-              padding: '4px 8px',
-              margin: '-16px -16px 12px -16px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span>🧩 TETRIS GAME v1.0</span>
-              <button onClick={closeEasterEgg} style={{
-                background: '#cdc7bb',
-                border: '2px outset #cdc7bb',
-                padding: '2px 6px',
-                fontSize: '10px',
-                cursor: 'pointer',
-                color: '#000000'
-              }}>✕</button>
-            </div>
-            <div style={{ textAlign: 'center', padding: '40px' }}>
-              <div style={{ fontSize: '16px', marginBottom: '20px' }}>🎮 TETRIS COMING SOON! 🎮</div>
-              <div style={{ fontSize: '12px', color: '#808080' }}>
-                This Tetris game is under construction!<br/>
-                Try clicking other banner ads for more games!
-              </div>
-            </div>
-          </div>
-        )
-      
+        return <TetrisGame isActive={true} onClose={closeEasterEgg} />
+
       case 'pong-game':
-        return (
-          <div style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 10000,
-            background: '#ecece0',
-            border: '4px outset #cdc7bb',
-            padding: '16px',
-            fontFamily: 'MS Sans Serif, Arial, sans-serif'
-          }}>
-            <div style={{
-              background: '#000080',
-              color: '#ffffff',
-              padding: '4px 8px',
-              margin: '-16px -16px 12px -16px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span>🏓 PONG GAME v1.0</span>
-              <button onClick={closeEasterEgg} style={{
-                background: '#cdc7bb',
-                border: '2px outset #cdc7bb',
-                padding: '2px 6px',
-                fontSize: '10px',
-                cursor: 'pointer',
-                color: '#000000'
-              }}>✕</button>
-            </div>
-            <div style={{ textAlign: 'center', padding: '40px' }}>
-              <div style={{ fontSize: '16px', marginBottom: '20px' }}>🏓 PONG COMING SOON! 🏓</div>
-              <div style={{ fontSize: '12px', color: '#808080' }}>
-                This Pong game is under construction!<br/>
-                Try clicking other banner ads for more games!
-              </div>
-            </div>
-          </div>
-        )
-      
+        return <PongGame isActive={true} onClose={closeEasterEgg} />
+
       case 'starfield-effect':
-        return (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: '#000000',
-            zIndex: 9999,
-            pointerEvents: 'none'
-          }}>
-            {Array.from({ length: 100 }, (_, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: '2px',
-                  height: '2px',
-                  background: '#ffffff',
-                  animation: `starfield ${2 + Math.random() * 3}s linear infinite`
-                }}
-              />
-            ))}
-            <div style={{
-              position: 'fixed',
-              top: '20px',
-              right: '20px',
-              zIndex: 10001,
-              background: '#ecece0',
-              border: '3px outset #cdc7bb',
-              padding: '8px',
-              cursor: 'pointer',
-              fontFamily: 'MS Sans Serif, Arial, sans-serif',
-              fontSize: '10px',
-              pointerEvents: 'auto'
-            }} onClick={closeEasterEgg}>
-              ✕ STARFIELD
-            </div>
-            <style jsx>{`
-              @keyframes starfield {
-                0% { transform: translateY(0px); opacity: 1; }
-                100% { transform: translateY(-100vh); opacity: 0; }
-              }
-            `}</style>
-          </div>
-        )
-      
+        return <StarfieldEffect isActive={true} onClose={closeEasterEgg} />
+
       case 'rainbow-text':
         return (
           <div style={{
@@ -223,7 +98,7 @@ export default function EasterEggManager({ className = '' }: EasterEggManagerPro
               🌈 RAINBOW TEXT! 🌈
             </div>
             <div style={{ fontSize: '12px', marginTop: '12px', color: '#808080' }}>
-              This effect makes text rainbow colored!<br/>
+              This effect makes text rainbow colored!<br />
               (Actually, it's just this popup...)
             </div>
             <style jsx>{`
@@ -239,65 +114,10 @@ export default function EasterEggManager({ className = '' }: EasterEggManagerPro
             `}</style>
           </div>
         )
-      
+
       case 'matrix-effect':
-        return (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: '#000000',
-            zIndex: 9999,
-            fontFamily: 'Courier New, monospace',
-            fontSize: '12px',
-            color: '#00ff00',
-            overflow: 'hidden'
-          }}>
-            {Array.from({ length: 50 }, (_, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: `${Math.random() * 100}%`,
-                  top: '-20px',
-                  animation: `matrix ${3 + Math.random() * 4}s linear infinite`,
-                  animationDelay: `${Math.random() * 2}s`
-                }}
-              >
-                {Array.from({ length: 20 }, (_, j) => (
-                  <div key={j} style={{ opacity: Math.random() }}>
-                    {String.fromCharCode(0x30A0 + Math.random() * 96)}
-                  </div>
-                ))}
-              </div>
-            ))}
-            <div style={{
-              position: 'fixed',
-              top: '20px',
-              right: '20px',
-              zIndex: 10001,
-              background: '#000000',
-              border: '2px solid #00ff00',
-              padding: '8px',
-              cursor: 'pointer',
-              fontFamily: 'Courier New, monospace',
-              fontSize: '10px',
-              color: '#00ff00',
-              pointerEvents: 'auto'
-            }} onClick={closeEasterEgg}>
-              ✕ MATRIX
-            </div>
-            <style jsx>{`
-              @keyframes matrix {
-                0% { transform: translateY(0px); opacity: 1; }
-                100% { transform: translateY(100vh); opacity: 0; }
-              }
-            `}</style>
-          </div>
-        )
-      
+        return <MatrixEffect isActive={true} onClose={closeEasterEgg} />
+
       default:
         return null
     }
@@ -306,7 +126,7 @@ export default function EasterEggManager({ className = '' }: EasterEggManagerPro
   return (
     <>
       {activeEasterEgg && renderEasterEgg()}
-      
+
       {/* Easter egg counter display */}
       {easterEggCount > 0 && (
         <div style={{
