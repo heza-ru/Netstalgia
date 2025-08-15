@@ -128,7 +128,7 @@ export default function ClickCounter({
     let bestDay = stats.bestDay
     let bestDayClicks = stats.bestDayClicks
     Object.entries(dailyData).forEach(([date, clicks]) => {
-      if (clicks > bestDayClicks) {
+if (clicks as number > bestDayClicks) {
         bestDay = date
         bestDayClicks = clicks as number
       }
