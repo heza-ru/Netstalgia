@@ -86,13 +86,16 @@ export default function PixelatedHoverEffects() {
 
                     link.addEventListener('mouseenter', () => {
                         // Add rainbow border effect
-                        link.style.animation = 'rainbowBorder 0.5s ease-in-out'
-                        link.style.borderImage = 'linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, #00ffff, #0080ff, #0000ff, #8000ff, #ff00ff, #ff0080) 1'
+                        const htmlLink = link as HTMLElement
+                        htmlLink.style.animation = 'rainbowBorder 0.5s ease-in-out'
+                        htmlLink.style.border = '2px solid'
+                        htmlLink.style.borderImage = 'linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, #00ffff, #0080ff, #0000ff, #8000ff, #ff00ff, #ff0080) 1'
                     })
 
                     link.addEventListener('mouseleave', () => {
-                        link.style.animation = ''
-                        link.style.borderImage = ''
+                        const htmlLink = link as HTMLElement
+                        htmlLink.style.animation = ''
+                        htmlLink.style.border = ''
                     })
                 }
             })
@@ -104,13 +107,15 @@ export default function PixelatedHoverEffects() {
                     counter.setAttribute('data-special-hover', 'true')
 
                     counter.addEventListener('mouseenter', () => {
-                        counter.style.textShadow = '0 0 8px #00ff00, 0 0 16px #00ff00'
-                        counter.style.transform = 'scale(1.1)'
+                        const htmlCounter = counter as HTMLElement
+                        htmlCounter.style.textShadow = '0 0 8px #00ff00, 0 0 16px #00ff00'
+                        htmlCounter.style.transform = 'scale(1.1)'
                     })
 
                     counter.addEventListener('mouseleave', () => {
-                        counter.style.textShadow = ''
-                        counter.style.transform = ''
+                        const htmlCounter = counter as HTMLElement
+                        htmlCounter.style.textShadow = ''
+                        htmlCounter.style.transform = ''
                     })
                 }
             })

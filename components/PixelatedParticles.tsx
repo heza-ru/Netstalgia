@@ -147,8 +147,7 @@ export default function PixelatedParticles() {
                         height: `${particle.size}px`,
                         background: particle.color,
                         opacity: particle.life / particle.maxLife,
-                        imageRendering: 'pixelated',
-                        imageRendering: 'crisp-edges',
+                        imageRendering: 'pixelated' as const,
                         border: `1px solid ${particle.color}`,
                         boxShadow: `
                             0 0 0 1px ${particle.color},
