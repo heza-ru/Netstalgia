@@ -11,10 +11,10 @@ export default function GitHubStarRansomware({ onStarred, onRansomwareTriggered 
     const [showInitialPopup, setShowInitialPopup] = useState(false)
 
     useEffect(() => {
-        // Show initial popup after 30 seconds
+        // Show initial popup after 10 seconds
         const timer = setTimeout(() => {
             setShowInitialPopup(true)
-        }, 30000)
+        }, 10000)
 
         return () => clearTimeout(timer)
     }, [])

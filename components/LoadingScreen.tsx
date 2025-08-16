@@ -131,9 +131,9 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     // Initialize audio with enhanced fallback system
     const cleanupAudio = initializeAudio()
 
-    // Variable timing based on connection speed (slower connections take longer)
-    const baseStepDelay = 1200
-    const baseProgressDelay = 80
+    // Variable timing based on connection speed (faster for better UX)
+    const baseStepDelay = 400  // Reduced from 1200 to 400
+    const baseProgressDelay = 30  // Reduced from 80 to 30
     const stepDelay = Math.floor(baseStepDelay * speedMultiplier)
     const progressDelay = Math.floor(baseProgressDelay * speedMultiplier)
 
@@ -144,8 +144,8 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           return prev + 1
         } else {
           clearInterval(stepInterval)
-          // Final delay before completion varies by connection speed
-          const completionDelay = Math.floor(2000 * speedMultiplier)
+          // Final delay before completion varies by connection speed (reduced for faster loading)
+          const completionDelay = Math.floor(500 * speedMultiplier)  // Reduced from 2000 to 500
           setTimeout(() => {
             onComplete()
           }, completionDelay)

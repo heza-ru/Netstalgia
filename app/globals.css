@@ -4755,7 +4755,8 @@ LOADING SCREEN MOBILE OVERRIDE ===== */
     }
 }
 
-/*=====MOBILE POPUP FIXES=====*/ @media (max-width: 768px) {
+/*=====MOBILE POPUP FIXES=====*/
+@media (max-width: 768px) {
     .popup-container {
         position: fixed !important;
         max-width: 90vw !important;
