@@ -9,22 +9,41 @@ interface GitHubStarRansomwareProps {
 
 export default function GitHubStarRansomware({ onStarred, onRansomwareTriggered }: GitHubStarRansomwareProps) {
     const [showInitialPopup, setShowInitialPopup] = useState(false)
+    const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
 
     useEffect(() => {
-        // Show initial popup after 10 seconds
-        const timer = setTimeout(() => {
+        // Show initial popup after 5 seconds
+        const popupTimer = setTimeout(() => {
+            // Get current viewport dimensions for popup positioning
+            const viewportWidth = window.innerWidth
+            const viewportHeight = window.innerHeight
+            const popupWidth = 400
+            const popupHeight = 280
+
+            // Position popup in the center of current viewport (like other popups)
+            setPopupPosition({
+                x: Math.max(10, (viewportWidth - popupWidth) / 2),
+                y: Math.max(10, (viewportHeight - popupHeight) / 2)
+            })
+
             setShowInitialPopup(true)
+        }, 5000)
+
+        // Auto-trigger ransomware screen after 10 seconds regardless of user interaction
+        const ransomwareTimer = setTimeout(() => {
+            setShowInitialPopup(false)
+            onRansomwareTriggered()
         }, 10000)
 
-        return () => clearTimeout(timer)
+        return () => {
+            clearTimeout(popupTimer)
+            clearTimeout(ransomwareTimer)
+        }
     }, [])
 
     const handleIgnore = () => {
         setShowInitialPopup(false)
-        // Trigger ransomware screen after 2 seconds
-        setTimeout(() => {
-            onRansomwareTriggered()
-        }, 2000)
+        // User interaction doesn't affect the auto-trigger - ransomware will still happen at 10s
     }
 
     const handleStar = () => {
@@ -35,15 +54,16 @@ export default function GitHubStarRansomware({ onStarred, onRansomwareTriggered 
 
     if (showInitialPopup) {
         return (
-            <div style={{
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 10000,
-                maxWidth: '90vw',
-                maxHeight: '90vh'
-            }}>
+            <div
+                className="popup-container"
+                style={{
+                    position: 'fixed',
+                    top: popupPosition.y,
+                    left: popupPosition.x,
+                    zIndex: 10000,
+                    maxWidth: '90vw',
+                    maxHeight: '90vh'
+                }}>
                 <div style={{
                     background: '#cdc7bb',
                     border: 'none',
