@@ -3516,8 +3516,49 @@ body.crt-mode-active .rainbow-text {
     .pixelated-link:hover,
     .pixelated-image:hover {
         transform: none !important;
-        filter: none !important;
-        box-shadow: none !important;
+    }
+
+    /* Mobile-specific improvements */
+    @media (max-width: 768px) {
+        .retro-border {
+            margin: 8px !important;
+            padding: 12px !important;
+        }
+        
+        .title-section {
+            flex-direction: column !important;
+            text-align: center !important;
+        }
+        
+        .title-branding {
+            min-width: auto !important;
+            margin-bottom: 16px !important;
+        }
+        
+        .pixelated-title {
+            font-size: 32px !important;
+        }
+        
+        .data-table {
+            display: block !important;
+        }
+        
+        .data-table td {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 16px !important;
+        }
+        
+        .nav-links {
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        
+        .nav-links a {
+            display: block !important;
+            text-align: center !important;
+            padding: 8px !important;
+        }
     }
 
     /* Touch-friendly click feedback */
@@ -3664,9 +3705,6 @@ body.mobile-device textarea {
 }
 
 /* Mobile landscape specific adjustments */
-body.mobile-landscape {
-    /* Optimize for landscape mobile viewing */
-}
 
 body.mobile-landscape .title-section {
     flex-direction: row !important;

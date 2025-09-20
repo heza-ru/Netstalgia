@@ -30,9 +30,9 @@ export default function PixelatedHoverEffects() {
                 }
             })
 
-            // Apply to interactive divs (like dancing baby, counters, etc.)
+            // Apply to interactive divs (like dancing baby, counters, etc.) - excluding retro-border sections
             const interactiveElements = document.querySelectorAll(
-                '.dancing-baby, .counter-display, .retro-border, .win95-window, [onclick], [role="button"]'
+                '.dancing-baby, .counter-display, .win95-window, [onclick], [role="button"]'
             )
             interactiveElements.forEach(element => {
                 if (!element.classList.contains('pixelated-hover-applied')) {

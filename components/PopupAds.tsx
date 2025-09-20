@@ -9,6 +9,7 @@ interface PopupAd {
   style: string
   x: number
   y: number
+  frequency?: number
 }
 
 interface PopupAdsProps {
@@ -207,6 +208,12 @@ const AD_TEMPLATES = [
     title: 'VOODOO GRAPHICS CARD!',
     content: '* 3D ACCELERATION! *\n\nGLIDE API SUPPORT!\nQUAKE READY!\n4MB TEXTURE MEMORY!\n\nFEEL THE POWER!\n\n(AGP slot required)',
     style: 'graphics'
+  },
+  {
+    title: '🎵 DANCING BABY EVERYWHERE! 🎵',
+    content: '👶 THE DANCING BABY IS BACK! 👶\n\nAS SEEN ON ALLY MCBEAL!\nCHRISTMAS SPECIAL EDITION!\n\nCLICK TO MAKE HIM DANCE!\n\n(Ooga chaka ooga chaka!)',
+    style: 'dancingbaby',
+    frequency: 0.3 // High frequency - 30% chance
   }
 ]
 
@@ -330,13 +337,20 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
         return // Allow more concurrent popups for chaos
       }
 
-      const template = AD_TEMPLATES[Math.floor(Math.random() * AD_TEMPLATES.length)]
+      // Check for high-frequency popups first
+      const highFreqTemplates = AD_TEMPLATES.filter(t => t.frequency && Math.random() < t.frequency)
+      const template = highFreqTemplates.length > 0 
+        ? highFreqTemplates[Math.floor(Math.random() * highFreqTemplates.length)]
+        : AD_TEMPLATES[Math.floor(Math.random() * AD_TEMPLATES.length)]
+      
       console.log('Creating popup with template:', template.title)
+
+      // Calculate popup dimensions based on style
+      const popupWidth = template.style === 'dancingbaby' ? 400 : 320
+      const popupHeight = template.style === 'dancingbaby' ? 350 : 280
 
       // Enhanced positioning algorithm - more realistic 90s popup behavior
       const getRealisticPosition = () => {
-        const popupWidth = 320
-        const popupHeight = 280
         const safeWidth = window.innerWidth - popupWidth
         const safeHeight = window.innerHeight - popupHeight
 
@@ -394,8 +408,8 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
         title: template.title,
         content: template.content,
         style: template.style,
-        x: Math.max(0, Math.min(position.x, window.innerWidth - 320)),
-        y: Math.max(0, Math.min(position.y, window.innerHeight - 280))
+        x: Math.max(0, Math.min(position.x, window.innerWidth - popupWidth)),
+        y: Math.max(0, Math.min(position.y, window.innerHeight - popupHeight))
       }
 
       console.log('Adding popup to state:', popup)
@@ -472,12 +486,14 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
         const template = AD_TEMPLATES[Math.floor(Math.random() * AD_TEMPLATES.length)]
 
         // Enhanced positioning for resurrected popups - more annoying locations
+        const popupWidth = template.style === 'dancingbaby' ? 400 : 320
+        const popupHeight = template.style === 'dancingbaby' ? 350 : 280
         const annoyingPositions = [
           { x: 0, y: 0 }, // Top-left corner
-          { x: window.innerWidth - 320, y: 0 }, // Top-right corner
-          { x: 0, y: window.innerHeight - 280 }, // Bottom-left corner
-          { x: window.innerWidth - 320, y: window.innerHeight - 280 }, // Bottom-right corner
-          { x: (window.innerWidth - 320) / 2, y: (window.innerHeight - 280) / 2 } // Dead center
+          { x: window.innerWidth - popupWidth, y: 0 }, // Top-right corner
+          { x: 0, y: window.innerHeight - popupHeight }, // Bottom-left corner
+          { x: window.innerWidth - popupWidth, y: window.innerHeight - popupHeight }, // Bottom-right corner
+          { x: (window.innerWidth - popupWidth) / 2, y: (window.innerHeight - popupHeight) / 2 } // Dead center
         ]
         const position = annoyingPositions[Math.floor(Math.random() * annoyingPositions.length)]
 
@@ -486,8 +502,8 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
           title: '👻 POPUP RESURRECTION: ' + template.title,
           content: template.content + '\n\n👻 I\'M BAAAACK!\n🚫 YOU CANNOT ESCAPE THE ADS!\n⚠️ THIS IS YOUR FINAL WARNING!\n💀 RESISTANCE IS FUTILE!',
           style: template.style,
-          x: Math.max(0, Math.min(position.x, window.innerWidth - 320)),
-          y: Math.max(0, Math.min(position.y, window.innerHeight - 280))
+          x: Math.max(0, Math.min(position.x, window.innerWidth - popupWidth)),
+          y: Math.max(0, Math.min(position.y, window.innerHeight - popupHeight))
         }
 
         setPopups(prev => [...prev, newPopup])
@@ -682,9 +698,21 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
         }
       case 'dancingbaby':
         return {
-          titlebar: { background: 'linear-gradient(45deg, #ff6699, #ffccdd, #ff6699)', color: '#000000' },
-          content: { background: 'linear-gradient(45deg, #ffccdd, #ffddee)', border: '3px outset #ff6699' },
-          button: { background: 'linear-gradient(45deg, #ffccdd, #ff6699)', color: '#000000' }
+          titlebar: { 
+            background: 'linear-gradient(45deg, #ff6699, #ffccdd, #ff6699)', 
+            color: '#000000',
+            animation: 'rainbowPulse 2s ease-in-out infinite'
+          },
+          content: { 
+            background: 'linear-gradient(45deg, #ffccdd, #ffddee)', 
+            border: '3px outset #ff6699',
+            boxShadow: 'inset 0 0 10px rgba(255, 102, 153, 0.3)'
+          },
+          button: { 
+            background: 'linear-gradient(45deg, #ffccdd, #ff6699)', 
+            color: '#000000',
+            animation: 'buttonPulse 1.5s ease-in-out infinite'
+          }
         }
       case 'browser':
         return {
@@ -773,7 +801,7 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
               position: 'fixed',
               left: popup.x,
               top: popup.y,
-              width: '300px',
+              width: popup.style === 'dancingbaby' ? '400px' : '300px',
               zIndex: 100,
               animation: 'popupBounce 0.5s ease-out',
               border: '3px outset #c0c0c0',
@@ -810,21 +838,65 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
               }} className="blink pixelated-title">
                 {popup.title}
               </h3>
-              <div style={{
-                fontSize: '11px',
-                whiteSpace: 'pre-line',
-                color: popupStyle.content.color || '#000000',
-                marginBottom: '12px',
-                textAlign: 'center',
-                lineHeight: '1.4',
-                border: '2px inset #c0c0c0',
-                padding: '8px',
-                background: '#ffffff',
-                fontFamily: 'Consolas, Monaco, Courier New, monospace',
-                letterSpacing: '0.2px'
-              }}>
-                {popup.content}
-              </div>
+              {/* Special video content for dancing baby popup */}
+              {popup.style === 'dancingbaby' ? (
+                <div style={{
+                  marginBottom: '12px',
+                  textAlign: 'center',
+                  border: '2px inset #c0c0c0',
+                  padding: '8px',
+                  background: '#ffffff'
+                }}>
+                  <div style={{
+                    width: '200px',
+                    height: '150px',
+                    margin: '0 auto 8px auto',
+                    border: '2px solid #000000',
+                    background: '#000000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <img
+                      src="/assets/dancing-baby.gif"
+                      alt="Dancing Baby"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        imageRendering: 'pixelated'
+                      }}
+                    />
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#000000',
+                    lineHeight: '1.4',
+                    fontFamily: 'Consolas, Monaco, Courier New, monospace',
+                    letterSpacing: '0.3px'
+                  }}>
+                    {popup.content}
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  fontSize: '11px',
+                  whiteSpace: 'pre-line',
+                  color: popupStyle.content.color || '#000000',
+                  marginBottom: '12px',
+                  textAlign: 'center',
+                  lineHeight: '1.4',
+                  border: '2px inset #c0c0c0',
+                  padding: '8px',
+                  background: '#ffffff',
+                  fontFamily: 'Consolas, Monaco, Courier New, monospace',
+                  letterSpacing: '0.2px'
+                }}>
+                  {popup.content}
+                </div>
+              )}
 
               {/* Dynamic buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -886,6 +958,36 @@ export default function PopupAds({ onSystemCrash }: PopupAdsProps) {
           100% { 
             transform: scale(1) translateY(0) rotate(0deg); 
             opacity: 1; 
+          }
+        }
+        
+        @keyframes rainbowPulse {
+          0% { 
+            background: linear-gradient(45deg, #ff6699, #ffccdd, #ff6699);
+            transform: scale(1);
+          }
+          50% { 
+            background: linear-gradient(45deg, #ffccdd, #ff6699, #ffccdd);
+            transform: scale(1.02);
+          }
+          100% { 
+            background: linear-gradient(45deg, #ff6699, #ffccdd, #ff6699);
+            transform: scale(1);
+          }
+        }
+        
+        @keyframes buttonPulse {
+          0% { 
+            background: linear-gradient(45deg, #ffccdd, #ff6699);
+            box-shadow: 0 0 5px rgba(255, 102, 153, 0.5);
+          }
+          50% { 
+            background: linear-gradient(45deg, #ff6699, #ffccdd);
+            box-shadow: 0 0 15px rgba(255, 102, 153, 0.8);
+          }
+          100% { 
+            background: linear-gradient(45deg, #ffccdd, #ff6699);
+            box-shadow: 0 0 5px rgba(255, 102, 153, 0.5);
           }
         }
       `}</style>

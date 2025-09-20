@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import React from 'react'
 import './globals.css'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 export const metadata: Metadata = {
   title: 'NETSTALGIA BBS',
@@ -31,9 +32,11 @@ export default function RootLayout({
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕰️</text></svg>" />
       </head>
       <body className="scanlines">
-        <div id="app-root">
-          {children}
-        </div>
+        <ErrorBoundary>
+          <div id="app-root">
+            {children}
+          </div>
+        </ErrorBoundary>
         <div id="popup-root"></div>
       </body>
     </html>

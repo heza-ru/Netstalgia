@@ -30,6 +30,14 @@ import MobileEnhancements from '../components/MobileEnhancements'
 import MobilePopupFix from '../components/MobilePopupFix'
 import GitHubStarRansomware from '../components/GitHubStarRansomware'
 import GitHubRansomwareScreen from '../components/GitHubRansomwareScreen'
+import ChatRoom90s from '../components/ChatRoom90s'
+import MusicPlayer90s from '../components/MusicPlayer90s'
+import Desktop90s from '../components/Desktop90s'
+import Screensaver90s from '../components/Screensaver90s'
+import TriviaQuiz90s from '../components/TriviaQuiz90s'
+import Tamagotchi90s from '../components/Tamagotchi90s'
+import TVChannel90s from '../components/TVChannel90s'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 import Navbar from './Navbar'
 import BBSFeatures from '../components/BBSFeatures'
@@ -152,7 +160,7 @@ export default function Home() {
 
       // Enhanced secret help menu
       if (event.key === 'h' && event.ctrlKey) {
-        alert('🎯 SECRET HELP MENU! 🎯\n\nKeyboard Shortcuts:\n• S - Toggle Starfield\n• C - Toggle CRT Mode (authentic scanlines & effects)\n• T - Toggle Cursor Trail\n• Ctrl+M - Matrix effect\n• Ctrl+H - This help menu\n• Konami Code - ↑↑↓↓←→←→BA\n\nVisual Effects:\n• CRT Mode: Click the indicator in top-right corner\n• Pixelated hover effects on all interactive elements\n• Authentic low-resolution particle effects\n\nSecret Text Codes:\n• Type "CONTRA" for 30 lives cheat\n• Type "NINTENDO" for Nintendo Power\n• Type "DOOM" for god mode\n• Type "MORTAL KOMBAT" for fatality\n• Type "STREET FIGHTER" for hadoken\n• Type "QUAKE" for rocket launcher\n• Type "WARCRAFT" for cheat mode\n• Type "STARCRAFT" for show me the money\n• Type "GOLDENEYE" for invincibility\n• Type "MARIO" for warp zone\n\nEaster Eggs:\n• Click the dancing baby\n• Click banner ads\n• Use web ring navigation\n• Wait for mail notification\n\nHave fun exploring! 🌟')
+        alert('🎯 SECRET HELP MENU! 🎯\n\nKeyboard Shortcuts:\n• S - Toggle Starfield\n• C - Toggle CRT Mode (authentic scanlines & effects)\n• T - Toggle Cursor Trail\n• Ctrl+M - Matrix effect\n• Ctrl+H - This help menu\n• Konami Code - ↑↑↓↓←→←→BA\n\nVisual Effects:\n• CRT Mode: Click the indicator in top-right corner\n• Pixelated hover effects on all interactive elements\n• Authentic low-resolution particle effects\n\nSecret Text Codes:\n• Type "CONTRA" for 30 lives cheat\n• Type "NINTENDO" for Nintendo Power\n• Type "DOOM" for god mode\n• Type "MORTAL KOMBAT" for fatality\n• Type "STREET FIGHTER" for hadoken\n• Type "QUAKE" for rocket launcher\n• Type "WARCRAFT" for cheat mode\n• Type "STARCRAFT" for show me the money\n• Type "GOLDENEYE" for invincibility\n• Type "MARIO" for warp zone\n\nEaster Eggs:\n• Click desktop icons to open programs\n• Click banner ads\n• Use web ring navigation\n• Wait for mail notification\n\nHave fun exploring! 🌟')
       }
     }
 
@@ -582,8 +590,8 @@ export default function Home() {
                   ★ CLICK COUNTERS ★
                 </div>
                 <ClickCounter
-                  target="Dancing Baby"
-                  persistKey="dancing-baby-clicks"
+                  target="Desktop Icons"
+                  persistKey="desktop-icon-clicks"
                   showStats={true}
                   onMilestone={(count) => {
                     if (count === 100) {
@@ -732,13 +740,6 @@ export default function Home() {
                   </div>
 
                   <div
-                    onClick={() => {
-                      // Increment dancing baby click counter
-                      const event = new CustomEvent('incrementClickCounter', {
-                        detail: { target: 'Dancing Baby' }
-                      })
-                      window.dispatchEvent(event)
-                    }}
                     style={{
                       display: 'flex',
                       justifyContent: 'center',
@@ -749,7 +750,9 @@ export default function Home() {
                       margin: '16px 0'
                     }}
                   >
-                    <DancingBaby onTripleClick={handleEasterEgg} />
+                    <div style={{ width: '100%', maxWidth: '1000px' }}>
+                      <Desktop90s />
+                    </div>
                   </div>
 
                   <div style={{
@@ -1041,7 +1044,7 @@ export default function Home() {
                         <div>• Use the Web Ring navigation buttons</div>
                         <div>• Click "Join the Ring" for Matrix effect</div>
                         <div>• Wait for "You've Got Mail" notification</div>
-                        <div>• Triple-click the dancing baby</div>
+                        <div>• Click the Dancing Baby icon on the desktop</div>
                         <div>• Try typing "KONAMI" or "CONTRA"</div>
                         <div>• Click everything to find more secrets!</div>
                       </div>
@@ -1061,6 +1064,50 @@ export default function Home() {
                   </div>
 
                   <UnderConstruction text="More web toys coming soon!" />
+
+                  <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <p style={{ fontSize: '14px', color: '#666666' }}>
+                      All interactive features have been moved to the Desktop interface on the Home page!
+                      <br />
+                      Click on the desktop icons to access Chat Room, Music Player, Games, and more!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentPage === 'bbs' && (
+              <div className="retro-border" style={{ background: '#ecece0' }}>
+                <div className="center">
+                  <h2 className="font-large text-web-green rainbow-text" style={{ fontSize: '18px' }}>
+                    * NETSTALGIA BBS v2.1 *
+                  </h2>
+
+                  <div style={{ border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '800px', background: '#ecece0' }}>
+                    <h3 style={{ fontSize: '16px', color: '#000080', marginBottom: '12px' }}>
+                      Welcome to the Netstalgia Bulletin Board System!
+                    </h3>
+                    <p style={{ fontSize: '13px', textAlign: 'left', lineHeight: '1.4' }}>
+                      Experience the authentic BBS experience from the 90s! Connect to our virtual bulletin board system
+                      and explore all the classic features that made BBSes so popular before the World Wide Web.
+                    </p>
+
+                    <ErrorBoundary>
+                      <BBSFeatures />
+                    </ErrorBoundary>
+
+                    <div style={{ marginTop: '16px', fontSize: '12px', textAlign: 'left' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>BBS Features:</h4>
+                      <ul style={{ marginLeft: '20px' }}>
+                        <li>Message boards and forums</li>
+                        <li>File downloads and uploads</li>
+                        <li>Online chat rooms</li>
+                        <li>User profiles and statistics</li>
+                        <li>Door games and entertainment</li>
+                        <li>System announcements</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -1157,6 +1204,41 @@ export default function Home() {
               </div>
             )}
 
+            {currentPage === 'desktop' && (
+              <div className="retro-border" style={{ background: '#ecece0' }}>
+                <div className="center">
+                  <h2 className="font-large text-web-cyan rainbow-text" style={{ fontSize: '18px' }}>
+                    * WINDOWS 95 DESKTOP *
+                  </h2>
+
+                  <div style={{ border: '4px outset #cdc7bb', padding: '12px', margin: '16px auto', maxWidth: '800px', background: '#ecece0' }}>
+                    <h3 style={{ fontSize: '16px', color: '#000080', marginBottom: '12px' }}>
+                      Experience the authentic Windows 95 desktop environment!
+                    </h3>
+                    <p style={{ fontSize: '13px', textAlign: 'left', lineHeight: '1.4' }}>
+                      Click on the desktop icons, use the Start menu, and explore the classic Windows 95 interface.
+                      This interactive desktop simulator brings back the nostalgia of the 90s computing experience.
+                    </p>
+
+                    <ErrorBoundary>
+                      <Desktop90s />
+                    </ErrorBoundary>
+
+                    <div style={{ marginTop: '16px', fontSize: '12px', textAlign: 'left' }}>
+                      <h4 style={{ fontSize: '14px', color: '#ff0000', marginBottom: '8px' }}>Desktop Features:</h4>
+                      <ul style={{ marginLeft: '20px' }}>
+                        <li>Interactive desktop icons</li>
+                        <li>Start menu with classic programs</li>
+                        <li>Taskbar with running programs</li>
+                        <li>System tray with clock</li>
+                        <li>Authentic Windows 95 styling</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {currentPage === 'guestbook' && (
               <div className="retro-border" style={{ background: '#ecece0' }}>
                 <div className="center">
@@ -1217,7 +1299,7 @@ export default function Home() {
                       <div style={{ fontSize: '12px', textAlign: 'left' }}>
                         <div>• "Cool site! :-)"</div>
                         <div>• "This reminds me of the 90s!"</div>
-                        <div>• "I love the dancing baby!"</div>
+                        <div>• "I love the interactive desktop!"</div>
                         <div>• "The popup ads are so authentic!"</div>
                         <div>• "This site is totally tubular!"</div>
                         <div>• "I found all the easter eggs!"</div>
@@ -1307,7 +1389,7 @@ export default function Home() {
                 color: '#000080'
               }}>
                 <strong>SECRET EASTER EGGS:</strong><br />
-                • Triple-click the dancing baby!<br />
+                • Click the Dancing Baby icon on the desktop!<br />
                 • Try the Konami Code: ↑↑↓↓←→←→BA<br />
                 • Type "KONAMI" or "CONTRA" or "NINTENDO"<br />
                 • Click everything to find more secrets!<br />
@@ -1378,11 +1460,6 @@ export default function Home() {
 
       {/* Bottom Banner Ads */}
       <BannerAds />
-
-      {/* BBS Features Section */}
-      <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-        <BBSFeatures />
-      </div>
 
       {/* Footer - Always Visible */}
       <div className="center mt-4">

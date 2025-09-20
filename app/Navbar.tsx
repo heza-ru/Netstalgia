@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 const NAV_LINKS = [
   { label: 'HOME', page: 'home' },
   { label: 'DOWNLOADS', page: 'downloads' },
-  { label: 'WEB TOYS', page: 'webtoys' },
+  { label: 'DESKTOP', page: 'desktop' },
+  { label: 'BBS', page: 'bbs' },
   { label: 'ABOUT', page: 'about' },
   { label: 'GUESTBOOK', page: 'guestbook' }
 ]
@@ -71,7 +72,8 @@ export default function Navbar({ currentPage, setCurrentPage }: { currentPage: s
           }}>
             {link.page === 'home' && '🏠'}
             {link.page === 'downloads' && '💾'}
-            {link.page === 'webtoys' && '🎮'}
+            {link.page === 'desktop' && '🖥️'}
+            {link.page === 'bbs' && '📡'}
             {link.page === 'guestbook' && '📝'}
             {link.page === 'about' && 'ℹ️'}
           </div>
