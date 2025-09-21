@@ -400,29 +400,48 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
               Dialing Attempt {dialAttempt} OF {speedMultiplier > 2 ? 7 : 5}
             </div>
 
-            {/* Enhanced Windows 95 progress bar */}
+            {/* Blocky Windows 95 progress bar */}
             <div style={{
               background: '#ffffff',
               border: '2px inset #c0c0c0',
               height: '20px',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              width: '100%'
             }}>
-              <div style={{
-                height: '100%',
-                background: 'linear-gradient(90deg, #000080, #0000ff)',
-                width: `${progress}%`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)',
-                transition: 'width 0.3s ease'
-              }}>
-                {progress > 20 ? `${Math.floor(progress)}%` : ''}
-              </div>
+              {/* Blocky progress blocks */}
+              {Array.from({ length: 20 }, (_, index) => {
+                const blockProgress = (index + 1) * 5; // Each block represents 5%
+                const isActive = progress >= blockProgress;
+                const isPartial = progress > (index * 5) && progress < blockProgress;
+                
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      width: 'calc(5% - 1px)',
+                      height: '18px',
+                      backgroundColor: isActive ? '#000080' : (isPartial ? '#4040c0' : '#ffffff'),
+                      border: '1px solid #808080',
+                      borderTopColor: isActive ? '#0000ff' : '#c0c0c0',
+                      borderLeftColor: isActive ? '#0000ff' : '#c0c0c0',
+                      borderRightColor: isActive ? '#000040' : '#808080',
+                      borderBottomColor: isActive ? '#000040' : '#808080',
+                      marginRight: '1px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      imageRendering: 'pixelated',
+                      position: 'relative',
+                      flex: '1'
+                    }}
+                  >
+                  </div>
+                );
+              })}
             </div>
           </div>
 
