@@ -58,13 +58,6 @@ export default function MusicPlayer90s() {
     return () => clearInterval(interval)
   }, [isPlaying, duration])
 
-  useEffect(() => {
-    if (currentTime >= duration && isPlaying) {
-      setIsPlaying(false)
-      nextSong()
-    }
-  }, [currentTime, duration, isPlaying, nextSong])
-
   const parseTimeToSeconds = (timeStr: string): number => {
     const [minutes, seconds] = timeStr.split(':').map(Number)
     return minutes * 60 + seconds
@@ -89,6 +82,13 @@ export default function MusicPlayer90s() {
     setCurrentTime(0)
     setDuration(parseTimeToSeconds(playlist[nextIndex].duration))
   }, [currentIndex, playlist])
+
+  useEffect(() => {
+    if (currentTime >= duration && isPlaying) {
+      setIsPlaying(false)
+      nextSong()
+    }
+  }, [currentTime, duration, isPlaying, nextSong])
 
   const prevSong = () => {
     const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1
