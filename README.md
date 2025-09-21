@@ -9,33 +9,65 @@ Welcome to Netstalgia, a fully functional Next.js web application that recreates
 
 ## 📸 Screenshots
 
-### 🏠 Dial-up Loading Screen
-![Loading Screen](./public/assets/screenshots/nsloading.png)
-*Authentic 90s dial-up loading simulation with progress bars and status messages*
+<table>
+<tr>
+<td width="50%">
 
-### 💻 Windows 95 Desktop Interface
-![Desktop Screen](./public/assets/screenshots/nsdesktopscreen.png)
-*Interactive desktop with classic icons, Start menu, and authentic Windows 95 styling*
+**🏠 Dial-up Loading Screen**
+![Loading](./public/assets/screenshots/nsloading.png)
+*Authentic 90s dial-up loading simulation*
 
-### 📄 About Page
-![About Page](./public/assets/screenshots/nswebpageabout.png)
-*About page with interactive features, games, and 90s web elements*
+</td>
+<td width="50%">
 
-### 💥 Blue Screen of Death
+**💻 Windows 95 Desktop**
+![Desktop](./public/assets/screenshots/nsdesktopscreen.png)
+*Interactive desktop with classic icons*
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**📄 About Page**
+![About](./public/assets/screenshots/nswebpageabout.png)
+*Interactive features and 90s web elements*
+
+</td>
+<td width="50%">
+
+**💥 Blue Screen of Death**
 ![BSOD](./public/assets/screenshots/nsbsod.png)
-*System crash simulation and authentic Windows 95 blue screen of death*
+*System crash simulation*
 
-### 🎵 Audio Player Popup
-![Audio Player](./public/assets/screenshots/nsaudioplayerpopup.png)
-*Authentic Winamp-style music player with retro controls and interface*
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-### 💸 Popup Advertisement System
-![Popup Ads](./public/assets/screenshots/nspopups.png)
-*Classic 90s popup advertisements with authentic Windows 95 styling*
+**🎵 Audio Player Popup**
+![Audio](./public/assets/screenshots/nsaudioplayerpopup.png)
+*Winamp-style music player*
 
-### 🚨 GitHub Star Ransomware
+</td>
+<td width="50%">
+
+**💸 Popup Advertisements**
+![Popups](./public/assets/screenshots/nspopups.png)
+*Classic 90s popup ads*
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="center">
+
+**🚨 GitHub Star Ransomware**
 ![Ransomware](./public/assets/screenshots/nsransomware.png)
-*GitHub Star ransomware simulation - a fun easter egg for visitors*
+*Fun easter egg simulation*
+
+</td>
+</tr>
+</table>
 
 ## ✨ Features
 
